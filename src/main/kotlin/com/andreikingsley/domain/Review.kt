@@ -1,11 +1,6 @@
 package com.andreikingsley.domain
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.Table
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "reviews")
@@ -14,7 +9,6 @@ class Review(
     @Column(name = "review_id")
     var reviewId: String,
 
-    // OneToOne?
     @ManyToOne
     @JoinColumn(name = "order_id")
     var order: Order,
