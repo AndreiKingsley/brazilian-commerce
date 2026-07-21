@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service
 @Service
 class CategoryService(val repository: CategoryRepository) {
     @Transactional
-    fun load(orders: Iterable<Category>) {
-        repository.saveAll(orders)
+    fun load(categories: Iterable<Category>) {
+        repository.saveAll(categories)
     }
 
     fun getByName(name: String): Category? {

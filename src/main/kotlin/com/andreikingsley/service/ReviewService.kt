@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 @Service
 class ReviewService(val repository: ReviewRepository) {
     @Transactional
-    fun load(orders: Iterable<Review>) {
-        repository.saveAll(orders)
+    fun load(reviews: Iterable<Review>) {
+        repository.saveAll(reviews)
     }
 }

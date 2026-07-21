@@ -11,8 +11,4 @@ class OrderService(val repository: OrderRepository) {
     fun load(orders: Iterable<Order>) {
         repository.saveAll(orders)
     }
-
-    fun getById(orderId: String): Order? {
-        return repository.findById(orderId).map { it }.orElse(null)
-    }
 }

@@ -8,11 +8,7 @@ import org.springframework.stereotype.Service
 @Service
 class ProductService(val repository: ProductRepository) {
     @Transactional
-    fun load(orders: Iterable<Product>) {
-        repository.saveAll(orders)
-    }
-
-    fun getById(productId: String): Product? {
-        return repository.findById(productId).map { it }.orElse(null)
+    fun load(products: Iterable<Product>) {
+        repository.saveAll(products)
     }
 }

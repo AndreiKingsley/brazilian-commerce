@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 @Service
 class OrderItemService(val repository: OrderItemRepository) {
     @Transactional
-    fun load(orders: Iterable<OrderItem>) {
-        repository.saveAll(orders)
+    fun load(orderItems: Iterable<OrderItem>) {
+        repository.saveAll(orderItems)
     }
 }
