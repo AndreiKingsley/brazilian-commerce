@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Orders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 24px;
+            color: #222;
+        }
+        .card {
+            max-width: 960px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 24px;
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            vertical-align: top;
+        }
+        thead th {
+            color: #666;
+            font-weight: normal;
+            background: #fafafa;
+        }
+        tbody tr:hover {
+            background: #fbfbfb;
+        }
+        a.order-link {
+            color: #0b5aa2;
+            text-decoration: none;
+            font-family: monospace;
+        }
+        a.order-link:hover {
+            text-decoration: underline;
+        }
+        .muted {
+            color: #999;
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px 16px;
+            margin-bottom: 20px;
+            align-items: end;
+        }
+        .filters label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .filters input,
+        .filters select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            box-sizing: border-box;
+            background: #fff;
+        }
+        .filters .actions {
+            display: flex;
+            gap: 8px;
+        }
+        .filters button {
+            padding: 6px 14px;
+            border: 1px solid #d0dcee;
+            border-radius: 4px;
+            background: #eef4ff;
+            color: #0b5aa2;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .filters button:hover {
+            background: #dbe8fb;
+        }
+        .filters button.reset {
+            background: #fff;
+            border-color: #ddd;
+            color: #555;
+        }
+        .filters button.reset:hover {
+            background: #f5f5f5;
+        }
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .pagination a {
+            text-decoration: none;
+            color: #0b5aa2;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid #d0dcee;
+        }
+        .pagination a:hover {
+            background: #eef4ff;
+        }
+        .pagination .disabled {
+            color: #bbb;
+            padding: 6px 12px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .pagination .info {
+            color: #666;
+        }
+    </style>
+    <th:block th:replace="~{fragments/status :: styles}"></th:block>
+</head>
+<body>
+<div class="card">
+    <h1>Orders</h1>
+
+    <form id="filters" class="filters" method="get" th:action="@{/orders}">
+        <div>
+            <label for="f-status">Status</label>
+            <select id="f-status" name="status">
+                <option value="">Any</option>
+                <option th:each="s : ${statuses}"
+                        th:value="${s}"
+                        th:text="${s}"
+                        th:selected="${orderFilter.status != null and orderFilter.status.name() == s.name()}"></option>
+            </select>
+        </div>
+        <div>
+            <label for="f-state">Customer state</label>
+            <input id="f-state" type="text" name="customerState" maxlength="2"
+                   placeholder="e.g. SP"
+                   th:value="${orderFilter.customerState}">
+        </div>
+        <div>
+            <label for="f-from">From</label>
+            <input id="f-from" type="date" name="dateFrom"
+                   th:value="${orderFilter.dateFrom}">
+        </div>
+        <div>
+            <label for="f-to">To</label>
+            <input id="f-to" type="date" name="dateTo"
+                   th:value="${orderFilter.dateTo}">
+        </div>
+        <div class="actions">
+            <button type="submit">Apply</button>
+            <button type="button" class="reset" id="filters-reset">Reset</button>
+        </div>
+    </form>
+
+    <div id="orders-content" th:fragment="content">
+        <table>
+            <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Status</th>
+                <th>Customer</th>
+                <th>Purchased at</th>
+                <th>Estimated delivery</th>
+                <th>Delivered to customer</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td>
+                    <a class="order-link"
+                       th:href="@{/orders/{id}(id=${order.orderId})}"
+                       th:text="${order.orderId}">-</a>
+                </td>
+                <td>
+                    <span th:replace="~{fragments/status :: badge(${order.orderStatus})}">STATUS</span>
+                </td>
+                <td th:text="${order.customer.customerCity} + ', ' + ${order.customer.customerState}">-</td>
+                <td th:text="${order.orderPurchaseTimestamp}">-</td>
+                <td th:text="${order.orderEstimatedDeliveryDate}">-</td>
+                <td>
+                    <span th:if="${order.orderDeliveredCustomerDate}" th:text="${order.orderDeliveredCustomerDate}">-</span>
+                    <span th:unless="${order.orderDeliveredCustomerDate}" class="muted">—</span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(orders)}">
+                <td colspan="6" class="muted" style="text-align: center;">No orders match the current filter.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <a th:if="${hasPrev}" class="page-link"
+               th:href="@{/orders(page=${page - 1},
+                              status=${orderFilter.status},
+                              customerState=${orderFilter.customerState},
+                              dateFrom=${orderFilter.dateFrom},
+                              dateTo=${orderFilter.dateTo})}">← Prev</a>
+            <span th:unless="${hasPrev}" class="disabled">← Prev</span>
+
+            <span class="info" th:text="'Page ' + ${page + 1}">Page 1</span>
+
+            <a th:if="${hasNext}" class="page-link"
+               th:href="@{/orders(page=${page + 1},
+                              status=${orderFilter.status},
+                              customerState=${orderFilter.customerState},
+                              dateFrom=${orderFilter.dateFrom},
+                              dateTo=${orderFilter.dateTo})}">Next →</a>
+            <span th:unless="${hasNext}" class="disabled">Next →</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const form = document.getElementById('filters');
+        const resetBtn = document.getElementById('filters-reset');
+
+        function buildUrl(base) {
+            const u = new URL(base, window.location.origin);
+            u.searchParams.set('fragment', 'true');
+            return u;
+        }
+
+        async function loadFragment(url) {
+            const u = buildUrl(url);
+            for (const [k, v] of Array.from(u.searchParams.entries())) {
+                if (v === '') u.searchParams.delete(k);
+            }
+            u.searchParams.set('fragment', 'true');
+            const res = await fetch(u, { headers: { 'Accept': 'text/html' } });
+            if (!res.ok) return;
+            const html = await res.text();
+            const tmpl = document.createElement('template');
+            tmpl.innerHTML = html.trim();
+            const next = tmpl.content.firstElementChild;
+            const current = document.getElementById('orders-content');
+            if (next && current) {
+                current.replaceWith(next);
+            }
+            u.searchParams.delete('fragment');
+            const qs = u.searchParams.toString();
+            history.replaceState(null, '', u.pathname + (qs ? '?' + qs : ''));
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const params = new URLSearchParams();
+            for (const [k, v] of new FormData(form)) {
+                if (v !== '') params.set(k, v);
+            }
+            params.set('page', '0');
+            loadFragment('/orders?' + params.toString());
+        });
+
+        resetBtn.addEventListener('click', function () {
+            form.reset();
+            loadFragment('/orders?page=0');
+        });
+
+        document.addEventListener('click', function (e) {
+            const link = e.target.closest('#orders-content a.page-link');
+            if (link) {
+                e.preventDefault();
+                loadFragment(link.getAttribute('href'));
+            }
+        });
+    })();
+</script>
+</body>
+</html>

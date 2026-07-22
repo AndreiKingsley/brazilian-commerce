@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sellers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 24px;
+            color: #222;
+        }
+        .card {
+            max-width: 960px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 24px;
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            vertical-align: top;
+        }
+        thead th {
+            color: #666;
+            font-weight: normal;
+            background: #fafafa;
+        }
+        tbody tr:hover {
+            background: #fbfbfb;
+        }
+        .mono {
+            font-family: monospace;
+            color: #555;
+        }
+        .muted {
+            color: #999;
+        }
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .pagination a {
+            text-decoration: none;
+            color: #0b5aa2;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid #d0dcee;
+        }
+        .pagination a:hover {
+            background: #eef4ff;
+        }
+        .pagination .disabled {
+            color: #bbb;
+            padding: 6px 12px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .pagination .info {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Sellers</h1>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Seller ID</th>
+            <th>City</th>
+            <th>State</th>
+            <th>ZIP prefix</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="seller : ${sellers}">
+            <td class="mono" th:text="${seller.sellerId}">-</td>
+            <td th:text="${seller.sellerCity}">-</td>
+            <td th:text="${seller.sellerState}">-</td>
+            <td th:text="${seller.sellerZipCodePrefix}">-</td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(sellers)}">
+            <td colspan="4" class="muted" style="text-align: center;">No sellers on this page.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <a th:if="${hasPrev}" th:href="@{/sellers(page=${page - 1})}">← Prev</a>
+        <span th:unless="${hasPrev}" class="disabled">← Prev</span>
+
+        <span class="info" th:text="'Page ' + ${page + 1}">Page 1</span>
+
+        <a th:if="${hasNext}" th:href="@{/sellers(page=${page + 1})}">Next →</a>
+        <span th:unless="${hasNext}" class="disabled">Next →</span>
+    </div>
+</div>
+</body>
+</html>

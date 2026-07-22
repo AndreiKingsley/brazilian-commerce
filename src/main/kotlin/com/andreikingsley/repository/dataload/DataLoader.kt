@@ -17,7 +17,6 @@ import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import kotlin.let
 
 
 @Component
@@ -198,9 +197,10 @@ class DataLoader(
     }
 
     private fun recordToReview(record: CSVRecord): Review {
+        val orderId = record.get("order_id")
         return Review(
-            reviewId = record.get("review_id"),
-            order = orderService.repository.getReferenceById(record.get("order_id")),
+            reviewId = "${record.get("review_id")}_${orderId}",
+            order = orderService.repository.getReferenceById(orderId),
             reviewAnswerTimestamp = record.get("review_answer_timestamp").parseLocalDateTime()!!,
             reviewCommentMessage = record.get("review_comment_message"),
             reviewCommentTitle = record.get("review_comment_title"),

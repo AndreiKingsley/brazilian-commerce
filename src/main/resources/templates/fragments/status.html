@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<style th:fragment="styles">
+    .status-badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: bold;
+        border: 1px solid transparent;
+        letter-spacing: 0.3px;
+    }
+    .status-delivered   { background: #e3fcef; color: #14713b; border-color: #a7ecc1; }
+    .status-approved    { background: #e6f4ff; color: #0b5aa2; border-color: #b6d9f5; }
+    .status-invoiced    { background: #eef2ff; color: #3d47a3; border-color: #c6cef2; }
+    .status-shipped     { background: #e0f7fa; color: #007080; border-color: #a2dee8; }
+    .status-processing  { background: #fff4e0; color: #a05a00; border-color: #f2d1a2; }
+    .status-created     { background: #f2f2f2; color: #555555; border-color: #dcdcdc; }
+    .status-unavailable { background: #ececec; color: #666666; border-color: #cfcfcf; }
+    .status-canceled    { background: #ffe5e5; color: #a32020; border-color: #f5c1c1; }
+</style>
+
+<span th:fragment="badge(status)"
+      class="status-badge"
+      th:classappend="'status-' + ${#strings.toLowerCase(status)}"
+      th:text="${status}">STATUS</span>
+
+</body>
+</html>
