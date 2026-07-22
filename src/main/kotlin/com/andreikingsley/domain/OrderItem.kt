@@ -7,7 +7,7 @@ import jakarta.persistence.*
 class OrderItem(
     @Id
     @Column(name = "order_item_id")
-    var orderItemId: Int,
+    var orderItemId: String,
 
     @ManyToOne
     @JoinColumn(name = "order_id")

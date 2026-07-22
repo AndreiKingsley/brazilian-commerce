@@ -1,15 +1,7 @@
 package com.andreikingsley.domain
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.OneToMany
-import jakarta.persistence.OneToOne
-import jakarta.persistence.Table
+import jakarta.persistence.*
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "orders")
@@ -23,19 +15,19 @@ class Order(
     var customer: Customer,
 
     @Column(name = "order_approved_at")
-    var orderApprovedAt: java.time.LocalDateTime?,
+    var orderApprovedAt: LocalDateTime?,
 
     @Column(name = "order_delivered_carrier_date")
-    var orderDeliveredCarrierDate: java.time.LocalDateTime?,
+    var orderDeliveredCarrierDate: LocalDateTime?,
 
     @Column(name = "order_delivered_customer_date")
-    var orderDeliveredCustomerDate: java.time.LocalDateTime?,
+    var orderDeliveredCustomerDate: LocalDateTime?,
 
     @Column(name = "order_estimated_delivery_date")
-    var orderEstimatedDeliveryDate: java.time.LocalDateTime,
+    var orderEstimatedDeliveryDate: LocalDateTime,
 
     @Column(name = "order_purchase_timestamp")
-    var orderPurchaseTimestamp: java.time.LocalDateTime,
+    var orderPurchaseTimestamp: LocalDateTime,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status")

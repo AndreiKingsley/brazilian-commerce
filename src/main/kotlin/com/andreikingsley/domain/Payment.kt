@@ -1,21 +1,14 @@
 package com.andreikingsley.domain
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.Table
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "payments")
 class Payment(
-
-    // TODO not sure if we can use order_id as payment id
     @Id
-    var id: Long,
+    @Column("payment_id")
+    var paymentId: String,
 
-    // OneToOne???
     @ManyToOne
     @JoinColumn(name = "order_id")
     var order: Order,
@@ -26,9 +19,10 @@ class Payment(
     @Column(name = "payment_sequential")
     var paymentSequential: Int,
 
+    // TODO make enum
     @Column(name = "payment_type")
     var paymentType: String,
 
     @Column(name = "payment_value")
-    var paymentValue: Double
+    var paymentValue: Double,
 )
