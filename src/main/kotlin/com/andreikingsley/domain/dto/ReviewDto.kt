@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 
 data class ReviewDto(
     val reviewId: String,
-    val order: Order,
+    val order: OrderDto,
     val reviewAnswerTimestamp: LocalDateTime,
     val reviewCommentMessage: String?,
     val reviewCommentTitle: String?,
@@ -17,7 +17,7 @@ data class ReviewDto(
 fun Review.toReviewDto(): ReviewDto {
     return ReviewDto(
         reviewId = reviewId,
-        order = order,
+        order = order.toOrderDto(),
         reviewAnswerTimestamp = reviewAnswerTimestamp,
         reviewCommentMessage = reviewCommentMessage,
         reviewCommentTitle = reviewCommentTitle,

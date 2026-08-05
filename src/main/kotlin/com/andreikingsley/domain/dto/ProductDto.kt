@@ -5,7 +5,7 @@ import com.andreikingsley.domain.Product
 
 data class ProductDto(
     var productId: String,
-    var productCategoryName: Category?,
+    var productCategoryName: CategoryDto?,
     var productDescriptionLenght: Int?,
     var productHeightCm: Int?,
     var productLengthCm: Int?,
@@ -17,7 +17,7 @@ data class ProductDto(
 
 fun Product.toProductDto() = ProductDto(
     productId = productId,
-    productCategoryName = productCategoryName,
+    productCategoryName = productCategoryName?.toCategoryDto(),
     productDescriptionLenght = productDescriptionLenght,
     productHeightCm = productHeightCm,
     productLengthCm = productLengthCm,

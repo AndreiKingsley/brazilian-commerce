@@ -1,6 +1,7 @@
 package com.andreikingsley.domain
 
 import jakarta.persistence.*
+import java.math.BigDecimal
 
 @Entity
 @Table(name = "order_items")
@@ -16,7 +17,7 @@ class OrderItem(
     @Column(name = "freight_value")
     var freightValue: Double,
 
-    var price: Double,
+    var price: BigDecimal,
 
     @ManyToOne
     @JoinColumn(name = "product_id")

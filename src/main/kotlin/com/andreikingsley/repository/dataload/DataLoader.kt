@@ -161,7 +161,7 @@ class DataLoader(
     private fun recordToOrder(record: CSVRecord): Order {
         return Order(
             orderId = record.get("order_id"),
-            customer = customerService.repository.getReferenceById(record.get("customer_id")),
+            customer = customerService.getReferenceById(record.get("customer_id")),
             orderApprovedAt = record.get("order_approved_at").parseLocalDateTime(),
             orderDeliveredCarrierDate = record.get("order_delivered_carrier_date").parseLocalDateTime(),
             orderDeliveredCustomerDate = record.get("order_delivered_customer_date").parseLocalDateTime(),
@@ -175,11 +175,11 @@ class DataLoader(
         val orderId = record.get("order_id")
         return OrderItem(
             orderItemId = "${orderId}_${record.get("order_item_id")}",
-            order = orderService.repository.getReferenceById(orderId),
+            order = orderService.getReferenceById(orderId),
             freightValue = record.get("freight_value").toDouble(),
-            price = record.get("price").toDouble(),
-            product = productService.repository.getReferenceById(record.get("product_id")),
-            seller = sellerService.repository.getReferenceById(record.get("seller_id")),
+            price = record.get("price").toBigDecimal(),
+            product = productService.getReferenceById(record.get("product_id")),
+            seller = sellerService.getReferenceById(record.get("seller_id")),
             shippingLimitDate = record.get("shipping_limit_date").parseLocalDateTime()!!,
         )
     }
@@ -188,11 +188,11 @@ class DataLoader(
         val orderId = record.get("order_id")
         return Payment(
             paymentId = "${orderId}_${record.get("payment_sequential")}",
-            order = orderService.repository.getReferenceById(orderId),
+            order = orderService.getReferenceById(orderId),
             paymentInstallments = record.get("payment_installments").toInt(),
             paymentSequential = record.get("payment_sequential").toInt(),
             paymentType = record.get("payment_type").toString(),
-            paymentValue = record.get("payment_value").toDouble()
+            paymentValue = record.get("payment_value").toBigDecimal()
         )
     }
 
@@ -200,7 +200,7 @@ class DataLoader(
         val orderId = record.get("order_id")
         return Review(
             reviewId = "${record.get("review_id")}_${orderId}",
-            order = orderService.repository.getReferenceById(orderId),
+            order = orderService.getReferenceById(orderId),
             reviewAnswerTimestamp = record.get("review_answer_timestamp").parseLocalDateTime()!!,
             reviewCommentMessage = record.get("review_comment_message"),
             reviewCommentTitle = record.get("review_comment_title"),

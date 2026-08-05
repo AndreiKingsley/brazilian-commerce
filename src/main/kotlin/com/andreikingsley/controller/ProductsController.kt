@@ -1,32 +1,26 @@
 package com.andreikingsley.controller
 
-import com.andreikingsley.domain.dto.toProductDto
 import com.andreikingsley.service.ProductService
-import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
-class ProductsController(val productService: ProductService) {
+class ProductsController(private val productService: ProductService) {
 
     private val rowsPerPage = 20
 
     @GetMapping("/products")
     fun products(
         model: Model,
-        @RequestParam(defaultValue = "0") page: Int
+        @PageableDefault(size = 20)
+        pageable: Pageable,
     ): String {
+        val productsPage = productService.getPage(pageable)
 
-        val productsPage = productService.repository.findAll(
-            PageRequest.of(page, rowsPerPage)
-        )
-
-        model.addAttribute("products", productsPage.map { it.toProductDto() }.content)
-        model.addAttribute("page", page)
-        model.addAttribute("hasPrev", productsPage.hasPrevious())
-        model.addAttribute("hasNext", productsPage.hasNext())
+        model.addAttribute("products", productsPage)
 
         return "products_view"
     }

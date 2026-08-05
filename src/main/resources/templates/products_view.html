@@ -98,7 +98,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="product : ${products}">
+        <tr th:each="product : ${products.content}">
             <td class="mono" th:text="${product.productId}">-</td>
             <td>
                 <span th:if="${product.productCategoryName}"
@@ -120,20 +120,20 @@
                 <span th:unless="${product.productPhotosQty != null}" class="muted">—</span>
             </td>
         </tr>
-        <tr th:if="${#lists.isEmpty(products)}">
+        <tr th:if="${products.empty}">
             <td colspan="5" class="muted" style="text-align: center;">No products on this page.</td>
         </tr>
         </tbody>
     </table>
 
     <div class="pagination">
-        <a th:if="${hasPrev}" th:href="@{/products(page=${page - 1})}">← Prev</a>
-        <span th:unless="${hasPrev}" class="disabled">← Prev</span>
+        <a th:if="${products.hasPrevious()}" th:href="@{/products(page=${products.number - 1})}">← Prev</a>
+        <span th:unless="${products.hasPrevious()}" class="disabled">← Prev</span>
 
-        <span class="info" th:text="'Page ' + ${page + 1}">Page 1</span>
+        <span class="info" th:text="'Page ' + ${products.number + 1} + ' / ' + ${products.totalPages}">Page 1</span>
 
-        <a th:if="${hasNext}" th:href="@{/products(page=${page + 1})}">Next →</a>
-        <span th:unless="${hasNext}" class="disabled">Next →</span>
+        <a th:if="${products.hasNext()}" th:href="@{/products(page=${products.number + 1})}">Next →</a>
+        <span th:unless="${products.hasNext()}" class="disabled">Next →</span>
     </div>
 </div>
 </body>

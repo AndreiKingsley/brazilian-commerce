@@ -93,26 +93,26 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="seller : ${sellers}">
+        <tr th:each="seller : ${sellers.content}">
             <td class="mono" th:text="${seller.sellerId}">-</td>
             <td th:text="${seller.sellerCity}">-</td>
             <td th:text="${seller.sellerState}">-</td>
             <td th:text="${seller.sellerZipCodePrefix}">-</td>
         </tr>
-        <tr th:if="${#lists.isEmpty(sellers)}">
+        <tr th:if="${sellers.empty}">
             <td colspan="4" class="muted" style="text-align: center;">No sellers on this page.</td>
         </tr>
         </tbody>
     </table>
 
     <div class="pagination">
-        <a th:if="${hasPrev}" th:href="@{/sellers(page=${page - 1})}">← Prev</a>
-        <span th:unless="${hasPrev}" class="disabled">← Prev</span>
+        <a th:if="${sellers.hasPrevious()}" th:href="@{/sellers(page=${sellers.number - 1})}">← Prev</a>
+        <span th:unless="${sellers.hasPrevious()}" class="disabled">← Prev</span>
 
-        <span class="info" th:text="'Page ' + ${page + 1}">Page 1</span>
+        <span class="info" th:text="'Page ' + ${sellers.number + 1} + ' / ' + ${sellers.totalPages}">Page 1</span>
 
-        <a th:if="${hasNext}" th:href="@{/sellers(page=${page + 1})}">Next →</a>
-        <span th:unless="${hasNext}" class="disabled">Next →</span>
+        <a th:if="${sellers.hasNext()}" th:href="@{/sellers(page=${sellers.number + 1})}">Next →</a>
+        <span th:unless="${sellers.hasNext()}" class="disabled">Next →</span>
     </div>
 </div>
 </body>
