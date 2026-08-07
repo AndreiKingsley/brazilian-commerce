@@ -190,8 +190,8 @@
         <tbody>
         <tr th:each="item : ${orderCard.items}">
             <td class="item-num" th:text="${#strings.substringAfter(item.orderItemId, '_')}">-</td>
-            <td class="mono" th:text="${item.product.productId}">-</td>
-            <td class="mono" th:text="${item.seller.sellerId}">-</td>
+            <td class="mono" th:text="${item.productId}">-</td>
+            <td class="mono" th:text="${item.sellerId}">-</td>
             <td class="num" th:text="${#numbers.formatDecimal(item.price, 1, 2)}">-</td>
             <td class="num" th:text="${#numbers.formatDecimal(item.freightValue, 1, 2)}">-</td>
             <td class="nowrap" th:text="${#temporals.format(item.shippingLimitDate, 'yyyy-MM-dd HH:mm')}">-</td>

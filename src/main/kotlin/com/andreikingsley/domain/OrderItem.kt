@@ -10,7 +10,7 @@ class OrderItem(
     @Column(name = "order_item_id")
     var orderItemId: String,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     var order: Order,
 
@@ -19,11 +19,11 @@ class OrderItem(
 
     var price: BigDecimal,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     var product: Product,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id")
     var seller: Seller,
 

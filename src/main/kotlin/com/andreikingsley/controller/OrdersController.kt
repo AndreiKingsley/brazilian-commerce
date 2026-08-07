@@ -31,8 +31,6 @@ class OrdersController(
     private val paymentService: PaymentService,
 ) {
 
-    private val rowsPerPage = 20
-
     @GetMapping("/orders")
     fun orders(
         model: Model,

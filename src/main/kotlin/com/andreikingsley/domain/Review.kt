@@ -9,7 +9,7 @@ class Review(
     @Column(name = "review_id")
     var reviewId: String,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     var order: Order,
 

@@ -10,7 +10,7 @@ class Payment(
     @Column("payment_id")
     var paymentId: String,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     var order: Order,
 
