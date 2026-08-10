@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audit</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 24px;
+            color: #222;
+        }
+        .card {
+            max-width: 1080px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 24px;
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            vertical-align: top;
+        }
+        thead th {
+            color: #666;
+            font-weight: normal;
+            background: #fafafa;
+        }
+        tbody tr:hover {
+            background: #fbfbfb;
+        }
+        .mono {
+            font-family: monospace;
+            color: #555;
+        }
+        .muted {
+            color: #999;
+        }
+        .nowrap {
+            white-space: nowrap;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            background: #eef4ff;
+            color: #0b5aa2;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px 16px;
+            margin-bottom: 20px;
+            align-items: end;
+        }
+        .filters label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .filters input,
+        .filters select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            box-sizing: border-box;
+            background: #fff;
+        }
+        .filters .actions {
+            display: flex;
+            gap: 8px;
+        }
+        .filters button {
+            padding: 6px 14px;
+            border: 1px solid #d0dcee;
+            border-radius: 4px;
+            background: #eef4ff;
+            color: #0b5aa2;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .filters button:hover {
+            background: #dbe8fb;
+        }
+        .filters button.reset {
+            background: #fff;
+            border-color: #ddd;
+            color: #555;
+        }
+        .filters button.reset:hover {
+            background: #f5f5f5;
+        }
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .pagination a {
+            text-decoration: none;
+            color: #0b5aa2;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid #d0dcee;
+        }
+        .pagination a:hover {
+            background: #eef4ff;
+        }
+        .pagination .disabled {
+            color: #bbb;
+            padding: 6px 12px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .pagination .info {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Audit</h1>
+
+    <form id="filters" class="filters" method="get" th:action="@{/audit}">
+        <div>
+            <label for="f-entity">Entity</label>
+            <select id="f-entity" name="entityType">
+                <option value="">Any</option>
+                <option th:each="e : ${dbEntities}"
+                        th:value="${e}"
+                        th:text="${e}"
+                        th:selected="${auditFilter.entityType != null and auditFilter.entityType.name() == e.name()}"></option>
+            </select>
+        </div>
+        <div class="actions">
+            <button type="submit">Apply</button>
+            <button type="button" class="reset" id="filters-reset">Reset</button>
+        </div>
+    </form>
+
+    <div id="audit-content" th:fragment="content">
+        <table>
+            <thead>
+            <tr>
+                <th class="nowrap">Changed at</th>
+                <th>Entity</th>
+                <th>Field</th>
+                <th>Old value</th>
+                <th>New value</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${audit.content}">
+                <td class="nowrap" th:text="${row.changedAt}">-</td>
+                <td><span class="tag" th:text="${row.entityType}">-</span></td>
+                <td class="mono" th:text="${row.field}">-</td>
+                <td th:text="${row.oldValue}">-</td>
+                <td th:text="${row.newValue}">-</td>
+            </tr>
+            <tr th:if="${audit.empty}">
+                <td colspan="5" class="muted" style="text-align: center;">No audit records match the current filter.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <a th:if="${audit.hasPrevious()}" class="page-link"
+               th:href="@{/audit(page=${audit.number - 1}, entityType=${auditFilter.entityType})}">← Prev</a>
+            <span th:unless="${audit.hasPrevious()}" class="disabled">← Prev</span>
+
+            <span class="info" th:text="'Page ' + ${audit.number + 1} + ' / ' + ${audit.totalPages}">Page 1</span>
+
+            <a th:if="${audit.hasNext()}" class="page-link"
+               th:href="@{/audit(page=${audit.number + 1}, entityType=${auditFilter.entityType})}">Next →</a>
+            <span th:unless="${audit.hasNext()}" class="disabled">Next →</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const form = document.getElementById('filters');
+        const resetBtn = document.getElementById('filters-reset');
+
+        function buildUrl(base) {
+            const u = new URL(base, window.location.origin);
+            return u;
+        }
+
+        async function loadFragment(url) {
+            const u = buildUrl(url);
+            for (const [k, v] of Array.from(u.searchParams.entries())) {
+                if (v === '') u.searchParams.delete(k);
+            }
+            u.searchParams.set('fragment', 'true');
+            const res = await fetch(u, { headers: { 'Accept': 'text/html' } });
+            if (!res.ok) return;
+            const html = await res.text();
+            const tmpl = document.createElement('template');
+            tmpl.innerHTML = html.trim();
+            const next = tmpl.content.firstElementChild;
+            const current = document.getElementById('audit-content');
+            if (next && current) {
+                current.replaceWith(next);
+            }
+            u.searchParams.delete('fragment');
+            const qs = u.searchParams.toString();
+            history.replaceState(null, '', u.pathname + (qs ? '?' + qs : ''));
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const params = new URLSearchParams();
+            for (const [k, v] of new FormData(form)) {
+                if (v !== '') params.set(k, v);
+            }
+            params.set('page', '0');
+            loadFragment('/audit?' + params.toString());
+        });
+
+        resetBtn.addEventListener('click', function () {
+            form.reset();
+            loadFragment('/audit?page=0');
+        });
+
+        document.addEventListener('click', function (e) {
+            const link = e.target.closest('#audit-content a.page-link');
+            if (link) {
+                e.preventDefault();
+                loadFragment(link.getAttribute('href'));
+            }
+        });
+    })();
+</script>
+</body>
+</html>

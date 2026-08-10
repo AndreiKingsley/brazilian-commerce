@@ -1,8 +1,9 @@
 package com.andreikingsley.controller
 
-import com.andreikingsley.domain.dto.toSellerDto
-import com.andreikingsley.domain.edit.SellerEdit
-import com.andreikingsley.service.SellerService
+import com.andreikingsley.domain.dto.toCategoryDto
+import com.andreikingsley.domain.edit.CategoryEdit
+import com.andreikingsley.service.AuditService
+import com.andreikingsley.service.CategoryService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -17,29 +18,28 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
-class SellersController(private val sellerService: SellerService) {
+class CategoriesController(
+    private val categoryService: CategoryService,
+) {
 
-    private val rowsPerPage = 20
-
-    @GetMapping("/sellers")
-    fun sellers(
+    @GetMapping("/categories")
+    fun categories(
         model: Model,
         @PageableDefault(size = 20)
         pageable: Pageable,
     ): String {
+        val categoriesPage = categoryService.getPage(pageable)
 
-        val sellersPage = sellerService.getPage(pageable)
+        model.addAttribute("categories", categoriesPage)
 
-        model.addAttribute("sellers", sellersPage)
-
-        return "sellers_view"
+        return "categories_view"
     }
 
-    @PostMapping("/seller/{id}/edit")
+    @PostMapping("/category/{id}/edit")
     @ResponseBody
-    fun editSeller(
+    fun editCategory(
         @PathVariable id: String,
-        @Valid @RequestBody sellerEdit: SellerEdit,
+        @Valid @RequestBody categoryEdit: CategoryEdit,
         bindingResult: BindingResult,
     ): ResponseEntity<Any> {
         if (bindingResult.hasErrors()) {
@@ -47,7 +47,7 @@ class SellersController(private val sellerService: SellerService) {
                 ?: "Validation failed"
             return ResponseEntity.badRequest().body(mapOf("message" to message))
         }
-        val updated = sellerService.edit(id, sellerEdit).toSellerDto()
+        val updated = categoryService.editCategory(id, categoryEdit).toCategoryDto()
         return ResponseEntity.ok(updated)
     }
 }

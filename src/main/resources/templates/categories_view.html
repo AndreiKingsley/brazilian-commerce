@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sellers</title>
+    <title>Categories</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -171,59 +171,52 @@
 </head>
 <body>
 <div class="card">
-    <h1>Sellers</h1>
+    <h1>Categories</h1>
 
     <table>
         <thead>
         <tr>
-            <th>Seller ID</th>
-            <th>City</th>
-            <th>State</th>
-            <th>ZIP prefix</th>
+            <th>Name</th>
+            <th>English name</th>
             <th class="col-actions"></th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="seller : ${sellers.content}">
-            <td class="mono" th:text="${seller.sellerId}">-</td>
-            <td class="seller-city" th:text="${seller.sellerCity}">-</td>
-            <td class="seller-state" th:text="${seller.sellerState}">-</td>
-            <td th:text="${seller.sellerZipCodePrefix}">-</td>
+        <tr th:each="category : ${categories.content}">
+            <td class="mono" th:text="${category.productCategoryName}">-</td>
+            <td class="name-en" th:text="${category.productCategoryNameEnglish}">-</td>
             <td class="col-actions">
                 <button type="button" class="edit-btn"
-                        th:attr="data-id=${seller.sellerId},
-                                 data-city=${seller.sellerCity},
-                                 data-state=${seller.sellerState}">
+                        th:attr="data-id=${category.productCategoryName},
+                                 data-name-en=${category.productCategoryNameEnglish}">
                     Edit
                 </button>
             </td>
         </tr>
-        <tr th:if="${sellers.empty}">
-            <td colspan="5" class="muted" style="text-align: center;">No sellers on this page.</td>
+        <tr th:if="${categories.empty}">
+            <td colspan="3" class="muted" style="text-align: center;">No categories on this page.</td>
         </tr>
         </tbody>
     </table>
 
     <div class="pagination">
-        <a th:if="${sellers.hasPrevious()}" th:href="@{/sellers(page=${sellers.number - 1})}">← Prev</a>
-        <span th:unless="${sellers.hasPrevious()}" class="disabled">← Prev</span>
+        <a th:if="${categories.hasPrevious()}" th:href="@{/categories(page=${categories.number - 1})}">← Prev</a>
+        <span th:unless="${categories.hasPrevious()}" class="disabled">← Prev</span>
 
-        <span class="info" th:text="'Page ' + ${sellers.number + 1} + ' / ' + ${sellers.totalPages}">Page 1</span>
+        <span class="info" th:text="'Page ' + ${categories.number + 1} + ' / ' + ${categories.totalPages}">Page 1</span>
 
-        <a th:if="${sellers.hasNext()}" th:href="@{/sellers(page=${sellers.number + 1})}">Next →</a>
-        <span th:unless="${sellers.hasNext()}" class="disabled">Next →</span>
+        <a th:if="${categories.hasNext()}" th:href="@{/categories(page=${categories.number + 1})}">Next →</a>
+        <span th:unless="${categories.hasNext()}" class="disabled">Next →</span>
     </div>
 </div>
 
 <dialog id="edit-dialog">
     <form id="edit-form" class="dialog-content">
-        <h3>Edit seller</h3>
+        <h3>Edit category</h3>
         <label for="edit-id">ID</label>
         <input type="text" id="edit-id" readonly>
-        <label for="edit-city">City</label>
-        <input type="text" id="edit-city">
-        <label for="edit-state">State</label>
-        <input type="text" id="edit-state">
+        <label for="edit-name-en">English name</label>
+        <input type="text" id="edit-name-en">
         <div id="edit-error" class="dialog-error" hidden></div>
         <div class="dialog-actions">
             <button type="button" class="cancel" id="edit-cancel">Cancel</button>
@@ -237,8 +230,7 @@
         const dialog = document.getElementById('edit-dialog');
         const form = document.getElementById('edit-form');
         const idInput = document.getElementById('edit-id');
-        const cityInput = document.getElementById('edit-city');
-        const stateInput = document.getElementById('edit-state');
+        const nameEnInput = document.getElementById('edit-name-en');
         const errorDiv = document.getElementById('edit-error');
         const cancelBtn = document.getElementById('edit-cancel');
         let currentRow = null;
@@ -247,13 +239,12 @@
             btn.addEventListener('click', () => {
                 currentRow = btn.closest('tr');
                 idInput.value = btn.dataset.id;
-                cityInput.value = btn.dataset.city || '';
-                stateInput.value = btn.dataset.state || '';
+                nameEnInput.value = btn.dataset.nameEn || '';
                 errorDiv.hidden = true;
                 errorDiv.textContent = '';
                 dialog.showModal();
-                cityInput.focus();
-                cityInput.select();
+                nameEnInput.focus();
+                nameEnInput.select();
             });
         });
 
@@ -263,14 +254,13 @@
             e.preventDefault();
             errorDiv.hidden = true;
             const id = idInput.value;
-            const city = cityInput.value;
-            const state = stateInput.value;
+            const nameEn = nameEnInput.value;
 
             try {
-                const res = await fetch(`/seller/${encodeURIComponent(id)}/edit`, {
+                const res = await fetch(`/category/${encodeURIComponent(id)}/edit`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ city, state })
+                    body: JSON.stringify({ nameEn })
                 });
                 if (!res.ok) {
                     let message = `Ошибка ${res.status}`;
@@ -283,15 +273,10 @@
                     return;
                 }
                 if (currentRow) {
-                    const cityCell = currentRow.querySelector('.seller-city');
-                    if (cityCell) cityCell.textContent = city;
-                    const stateCell = currentRow.querySelector('.seller-state');
-                    if (stateCell) stateCell.textContent = state;
+                    const cell = currentRow.querySelector('.name-en');
+                    if (cell) cell.textContent = nameEn;
                     const btn = currentRow.querySelector('.edit-btn');
-                    if (btn) {
-                        btn.dataset.city = city;
-                        btn.dataset.state = state;
-                    }
+                    if (btn) btn.dataset.nameEn = nameEn;
                 }
                 dialog.close();
             } catch (err) {
