@@ -28,8 +28,24 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            /* fixed layout + overflow-wrap keeps a long value inside its column
+               instead of stretching the table past the card */
+            table-layout: fixed;
+        }
+        .col-time {
+            width: 200px;
+        }
+        .col-entity {
+            width: 100px;
+        }
+        .col-id {
+            width: 210px;
+        }
+        .col-field {
+            width: 150px;
         }
         th, td {
+            overflow-wrap: anywhere;
             text-align: left;
             padding: 8px 8px;
             border-bottom: 1px solid #f0f0f0;
@@ -51,9 +67,6 @@
         .muted {
             color: #999;
         }
-        .nowrap {
-            white-space: nowrap;
-        }
         .tag {
             display: inline-block;
             padding: 2px 8px;
@@ -63,6 +76,9 @@
             font-size: 12px;
             font-weight: bold;
             letter-spacing: 0.3px;
+            /* an entity name never wraps, even inside a cell that breaks long values */
+            white-space: nowrap;
+            overflow-wrap: normal;
         }
         .filters {
             display: grid;
@@ -145,9 +161,11 @@
             color: #666;
         }
     </style>
+    <th:block th:replace="~{fragments/nav :: styles}"></th:block>
 </head>
 <body>
 <div class="card">
+    <div th:replace="~{fragments/nav :: bar(null)}"></div>
     <h1>Audit</h1>
 
     <form class="filters" method="get" th:action="@{/audit}" th:object="${auditFilter}">
@@ -167,17 +185,17 @@
     <table>
         <thead>
         <tr>
-            <th class="nowrap">Changed at</th>
-            <th>Entity</th>
-            <th>Entity ID</th>
-            <th>Field</th>
+            <th class="col-time">Changed at</th>
+            <th class="col-entity">Entity</th>
+            <th class="col-id">Entity ID</th>
+            <th class="col-field">Field</th>
             <th>Old value</th>
             <th>New value</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="row : ${audit.content}">
-            <td class="nowrap" th:text="${row.changedAt}">-</td>
+            <td th:text="${row.changedAt}">-</td>
             <td><span class="tag" th:text="${row.entityType}">-</span></td>
             <td class="mono" th:text="${row.entityId}">-</td>
             <td class="mono" th:text="${row.field}">-</td>

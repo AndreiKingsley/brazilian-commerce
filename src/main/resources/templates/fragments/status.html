@@ -11,6 +11,9 @@
         font-weight: bold;
         border: 1px solid transparent;
         letter-spacing: 0.3px;
+        /* a status never wraps, even inside a cell that breaks long values */
+        white-space: nowrap;
+        overflow-wrap: normal;
     }
     .status-delivered   { background: #e3fcef; color: #14713b; border-color: #a7ecc1; }
     .status-approved    { background: #e6f4ff; color: #0b5aa2; border-color: #b6d9f5; }

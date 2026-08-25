@@ -10,4 +10,9 @@ class HomeController {
     fun home(): String {
         return "home_view"
     }
+
+    @GetMapping("/")
+    fun index(): String {
+        return "redirect:/home"
+    }
 }

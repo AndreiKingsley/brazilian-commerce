@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <title>Edit category</title>
     <th:block th:replace="~{fragments/form :: styles}"></th:block>
+    <th:block th:replace="~{fragments/nav :: styles}"></th:block>
 </head>
 <body>
 <div class="card">
+    <div th:replace="~{fragments/nav :: bar('CATEGORY')}"></div>
     <h1>Edit category</h1>
 
     <form method="post"
