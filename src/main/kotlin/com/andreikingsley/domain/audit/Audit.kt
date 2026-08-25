@@ -10,8 +10,6 @@ class Audit(
     @Column(name = "entity_type")
     var entityType: DbEntity,
 
-    // TODO entity ID!!!!
-
     @Column(name = "entity_id")
     var entityId: String,
 

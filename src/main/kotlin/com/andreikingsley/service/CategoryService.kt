@@ -49,7 +49,7 @@ class CategoryService(
 
         if (oldName != newName) {
             productCategoryNameEnglish = newName
-            auditService.audit(DbEntity.CATEGORY, productCategoryName, "productCategoryNameEnglish", oldName, newName)
+            auditService.audit(DbEntity.CATEGORY, productCategoryName, "product_category_name", oldName, newName)
         }
     }
 
