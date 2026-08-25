@@ -1,13 +1,9 @@
 package com.andreikingsley.service
 
-import com.andreikingsley.domain.Category
 import com.andreikingsley.domain.Seller
 import com.andreikingsley.domain.audit.DbEntity
-import com.andreikingsley.domain.dto.CustomerDto
 import com.andreikingsley.domain.dto.SellerDto
-import com.andreikingsley.domain.dto.toCustomerDto
 import com.andreikingsley.domain.dto.toSellerDto
-import com.andreikingsley.domain.edit.CategoryEdit
 import com.andreikingsley.domain.edit.SellerEdit
 import com.andreikingsley.repository.SellerRepository
 import jakarta.persistence.EntityManager
@@ -15,8 +11,8 @@ import jakarta.persistence.EntityNotFoundException
 import jakarta.persistence.PersistenceContext
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class SellerService(
@@ -42,7 +38,7 @@ class SellerService(
         val oldCity = sellerCity
         if (oldCity != newCity) {
             sellerCity = newCity
-            auditService.audit(DbEntity.SELLER, "seller_city", oldCity, newCity)
+            auditService.audit(DbEntity.SELLER, sellerId, "seller_city", oldCity, newCity)
         }
     }
 
@@ -50,7 +46,7 @@ class SellerService(
         val oldState = sellerState
         if (oldState != newState) {
             sellerState = newState
-            auditService.audit(DbEntity.SELLER, "seller_state", oldState, newState)
+            auditService.audit(DbEntity.SELLER, sellerId,"seller_state", oldState, newState)
         }
     }
 
@@ -58,7 +54,6 @@ class SellerService(
     fun edit(sellerId: String, edit: SellerEdit): Seller {
         val seller = repository.findById(sellerId)
             .orElseThrow { EntityNotFoundException("Seller with ID $sellerId not found") }
-
 
         seller.updateCity(edit.city)
         seller.updateState(edit.state)

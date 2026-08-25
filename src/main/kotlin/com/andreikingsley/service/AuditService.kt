@@ -18,12 +18,13 @@ class AuditService(private val repository: AuditRepository) {
     @Transactional
     fun audit(
         entity: DbEntity,
+        entityId: String,
         field: String,
         oldValue: String,
         newValue: String,
     ) {
         val changedAt = Instant.now()
-        repository.save(Audit(entity, field, oldValue, newValue, changedAt))
+        repository.save(Audit(entity, entityId, field, oldValue, newValue, changedAt))
     }
 
     @Transactional(readOnly = true)

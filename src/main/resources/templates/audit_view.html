@@ -167,6 +167,7 @@
             <tr>
                 <th class="nowrap">Changed at</th>
                 <th>Entity</th>
+                <th>Entity ID</th>
                 <th>Field</th>
                 <th>Old value</th>
                 <th>New value</th>
@@ -176,12 +177,13 @@
             <tr th:each="row : ${audit.content}">
                 <td class="nowrap" th:text="${row.changedAt}">-</td>
                 <td><span class="tag" th:text="${row.entityType}">-</span></td>
+                <td class="mono" th:text="${row.entityId}">-</td>
                 <td class="mono" th:text="${row.field}">-</td>
                 <td th:text="${row.oldValue}">-</td>
                 <td th:text="${row.newValue}">-</td>
             </tr>
             <tr th:if="${audit.empty}">
-                <td colspan="5" class="muted" style="text-align: center;">No audit records match the current filter.</td>
+                <td colspan="6" class="muted" style="text-align: center;">No audit records match the current filter.</td>
             </tr>
             </tbody>
         </table>

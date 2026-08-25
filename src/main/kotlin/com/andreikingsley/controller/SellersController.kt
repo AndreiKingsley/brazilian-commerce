@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.ResponseBody
 @Controller
 class SellersController(private val sellerService: SellerService) {
 
-    private val rowsPerPage = 20
-
     @GetMapping("/sellers")
     fun sellers(
         model: Model,

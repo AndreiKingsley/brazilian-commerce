@@ -7,6 +7,7 @@ import java.time.Instant
 
 data class AuditDto(
     val id: String,
+    var entityId: String,
     val entityType: DbEntity,
     val field: String,
     val oldValue: String,
@@ -16,6 +17,7 @@ data class AuditDto(
 
 fun Audit.toAuditDto() = AuditDto(
     id = id,
+    entityId = entityId,
     entityType = entityType,
     field = field,
     oldValue = oldValue,
