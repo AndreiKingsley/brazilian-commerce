@@ -90,6 +90,7 @@
         }
         .filters .actions {
             display: flex;
+            align-items: center;
             gap: 8px;
         }
         .filters button {
@@ -99,17 +100,22 @@
             background: #eef4ff;
             color: #0b5aa2;
             font-size: 14px;
+            font-family: inherit;
             cursor: pointer;
         }
         .filters button:hover {
             background: #dbe8fb;
         }
-        .filters button.reset {
+        .filters a.reset {
+            padding: 6px 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             background: #fff;
-            border-color: #ddd;
             color: #555;
+            font-size: 14px;
+            text-decoration: none;
         }
-        .filters button.reset:hover {
+        .filters a.reset:hover {
             background: #f5f5f5;
         }
         .pagination {
@@ -144,118 +150,57 @@
 <div class="card">
     <h1>Audit</h1>
 
-    <form id="filters" class="filters" method="get" th:action="@{/audit}">
+    <form class="filters" method="get" th:action="@{/audit}" th:object="${auditFilter}">
         <div>
-            <label for="f-entity">Entity</label>
-            <select id="f-entity" name="entityType">
-                <option value="">Any</option>
-                <option th:each="e : ${dbEntities}"
-                        th:value="${e}"
-                        th:text="${e}"
-                        th:selected="${auditFilter.entityType != null and auditFilter.entityType.name() == e.name()}"></option>
+            <label for="entityType">Entity</label>
+            <select id="entityType" th:field="*{entityType}">
+                <option value="" th:value="''">Any</option>
+                <option th:each="e : ${dbEntities}" th:value="${e}" th:text="${e}"></option>
             </select>
         </div>
         <div class="actions">
             <button type="submit">Apply</button>
-            <button type="button" class="reset" id="filters-reset">Reset</button>
+            <a class="reset" th:href="@{/audit}">Reset</a>
         </div>
     </form>
 
-    <div id="audit-content" th:fragment="content">
-        <table>
-            <thead>
-            <tr>
-                <th class="nowrap">Changed at</th>
-                <th>Entity</th>
-                <th>Entity ID</th>
-                <th>Field</th>
-                <th>Old value</th>
-                <th>New value</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="row : ${audit.content}">
-                <td class="nowrap" th:text="${row.changedAt}">-</td>
-                <td><span class="tag" th:text="${row.entityType}">-</span></td>
-                <td class="mono" th:text="${row.entityId}">-</td>
-                <td class="mono" th:text="${row.field}">-</td>
-                <td th:text="${row.oldValue}">-</td>
-                <td th:text="${row.newValue}">-</td>
-            </tr>
-            <tr th:if="${audit.empty}">
-                <td colspan="6" class="muted" style="text-align: center;">No audit records match the current filter.</td>
-            </tr>
-            </tbody>
-        </table>
+    <table>
+        <thead>
+        <tr>
+            <th class="nowrap">Changed at</th>
+            <th>Entity</th>
+            <th>Entity ID</th>
+            <th>Field</th>
+            <th>Old value</th>
+            <th>New value</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row : ${audit.content}">
+            <td class="nowrap" th:text="${row.changedAt}">-</td>
+            <td><span class="tag" th:text="${row.entityType}">-</span></td>
+            <td class="mono" th:text="${row.entityId}">-</td>
+            <td class="mono" th:text="${row.field}">-</td>
+            <td th:text="${row.oldValue}">-</td>
+            <td th:text="${row.newValue}">-</td>
+        </tr>
+        <tr th:if="${audit.empty}">
+            <td colspan="6" class="muted" style="text-align: center;">No audit records match the current filter.</td>
+        </tr>
+        </tbody>
+    </table>
 
-        <div class="pagination">
-            <a th:if="${audit.hasPrevious()}" class="page-link"
-               th:href="@{/audit(page=${audit.number - 1}, entityType=${auditFilter.entityType})}">← Prev</a>
-            <span th:unless="${audit.hasPrevious()}" class="disabled">← Prev</span>
+    <div class="pagination">
+        <a th:if="${audit.hasPrevious()}"
+           th:href="@{/audit(page=${audit.number - 1}, entityType=${auditFilter.entityType})}">← Prev</a>
+        <span th:unless="${audit.hasPrevious()}" class="disabled">← Prev</span>
 
-            <span class="info" th:text="'Page ' + ${audit.number + 1} + ' / ' + ${audit.totalPages}">Page 1</span>
+        <span class="info" th:text="'Page ' + ${audit.number + 1} + ' / ' + ${audit.totalPages}">Page 1</span>
 
-            <a th:if="${audit.hasNext()}" class="page-link"
-               th:href="@{/audit(page=${audit.number + 1}, entityType=${auditFilter.entityType})}">Next →</a>
-            <span th:unless="${audit.hasNext()}" class="disabled">Next →</span>
-        </div>
+        <a th:if="${audit.hasNext()}"
+           th:href="@{/audit(page=${audit.number + 1}, entityType=${auditFilter.entityType})}">Next →</a>
+        <span th:unless="${audit.hasNext()}" class="disabled">Next →</span>
     </div>
 </div>
-
-<script>
-    (function () {
-        const form = document.getElementById('filters');
-        const resetBtn = document.getElementById('filters-reset');
-
-        function buildUrl(base) {
-            const u = new URL(base, window.location.origin);
-            return u;
-        }
-
-        async function loadFragment(url) {
-            const u = buildUrl(url);
-            for (const [k, v] of Array.from(u.searchParams.entries())) {
-                if (v === '') u.searchParams.delete(k);
-            }
-            u.searchParams.set('fragment', 'true');
-            const res = await fetch(u, { headers: { 'Accept': 'text/html' } });
-            if (!res.ok) return;
-            const html = await res.text();
-            const tmpl = document.createElement('template');
-            tmpl.innerHTML = html.trim();
-            const next = tmpl.content.firstElementChild;
-            const current = document.getElementById('audit-content');
-            if (next && current) {
-                current.replaceWith(next);
-            }
-            u.searchParams.delete('fragment');
-            const qs = u.searchParams.toString();
-            history.replaceState(null, '', u.pathname + (qs ? '?' + qs : ''));
-        }
-
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const params = new URLSearchParams();
-            for (const [k, v] of new FormData(form)) {
-                if (v !== '') params.set(k, v);
-            }
-            params.set('page', '0');
-            loadFragment('/audit?' + params.toString());
-        });
-
-        resetBtn.addEventListener('click', function () {
-            form.reset();
-            loadFragment('/audit?page=0');
-        });
-
-        document.addEventListener('click', function (e) {
-            const link = e.target.closest('#audit-content a.page-link');
-            if (link) {
-                e.preventDefault();
-                loadFragment(link.getAttribute('href'));
-            }
-        });
-    })();
-</script>
 </body>
 </html>

@@ -37,6 +37,13 @@ class CategoryService(
         return repository.findAll(pageable).map { it.toCategoryDto() }
     }
 
+    @Transactional(readOnly = true)
+    fun getDtoByName(name: String): CategoryDto {
+        return repository.findById(name)
+            .map { it.toCategoryDto() }
+            .orElseThrow { EntityNotFoundException("Category $name not found") }
+    }
+
     fun Category.updateName(newName: String) {
         val oldName = productCategoryNameEnglish
 

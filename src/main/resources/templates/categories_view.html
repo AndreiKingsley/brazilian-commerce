@@ -55,17 +55,17 @@
             width: 90px;
             text-align: right;
         }
-        button.edit-btn {
+        a.btn {
+            display: inline-block;
             padding: 4px 12px;
             background: #eef4ff;
             border: 1px solid #d0dcee;
             color: #0b5aa2;
             border-radius: 4px;
             font-size: 13px;
-            cursor: pointer;
-            font-family: inherit;
+            text-decoration: none;
         }
-        button.edit-btn:hover {
+        a.btn:hover {
             background: #dbe8fb;
         }
         .pagination {
@@ -94,79 +94,6 @@
         .pagination .info {
             color: #666;
         }
-        dialog {
-            padding: 0;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            max-width: 480px;
-            width: 90%;
-        }
-        dialog::backdrop {
-            background: rgba(0, 0, 0, 0.35);
-        }
-        .dialog-content {
-            padding: 20px;
-            font-family: Arial, sans-serif;
-        }
-        .dialog-content h3 {
-            margin-top: 0;
-            font-size: 16px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        .dialog-content label {
-            display: block;
-            font-size: 12px;
-            color: #666;
-            margin: 10px 0 4px;
-        }
-        .dialog-content input {
-            width: 100%;
-            padding: 6px 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: inherit;
-            box-sizing: border-box;
-        }
-        .dialog-content input[readonly] {
-            background: #f5f5f5;
-            color: #666;
-        }
-        .dialog-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 18px;
-        }
-        .dialog-actions button {
-            padding: 6px 14px;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        .dialog-actions button.primary {
-            background: #eef4ff;
-            color: #0b5aa2;
-            border: 1px solid #d0dcee;
-        }
-        .dialog-actions button.primary:hover {
-            background: #dbe8fb;
-        }
-        .dialog-actions button.cancel {
-            background: #fff;
-            border: 1px solid #ddd;
-            color: #555;
-        }
-        .dialog-actions button.cancel:hover {
-            background: #f5f5f5;
-        }
-        .dialog-error {
-            color: #a32020;
-            font-size: 13px;
-            margin-top: 8px;
-        }
     </style>
 </head>
 <body>
@@ -184,13 +111,10 @@
         <tbody>
         <tr th:each="category : ${categories.content}">
             <td class="mono" th:text="${category.productCategoryName}">-</td>
-            <td class="name-en" th:text="${category.productCategoryNameEnglish}">-</td>
+            <td th:text="${category.productCategoryNameEnglish}">-</td>
             <td class="col-actions">
-                <button type="button" class="edit-btn"
-                        th:attr="data-id=${category.productCategoryName},
-                                 data-name-en=${category.productCategoryNameEnglish}">
-                    Edit
-                </button>
+                <a class="btn"
+                   th:href="@{/categories/{id}/edit(id=${category.productCategoryName}, page=${categories.number})}">Edit</a>
             </td>
         </tr>
         <tr th:if="${categories.empty}">
@@ -209,82 +133,5 @@
         <span th:unless="${categories.hasNext()}" class="disabled">Next →</span>
     </div>
 </div>
-
-<dialog id="edit-dialog">
-    <form id="edit-form" class="dialog-content">
-        <h3>Edit category</h3>
-        <label for="edit-id">ID</label>
-        <input type="text" id="edit-id" readonly>
-        <label for="edit-name-en">English name</label>
-        <input type="text" id="edit-name-en">
-        <div id="edit-error" class="dialog-error" hidden></div>
-        <div class="dialog-actions">
-            <button type="button" class="cancel" id="edit-cancel">Cancel</button>
-            <button type="submit" class="primary">Save</button>
-        </div>
-    </form>
-</dialog>
-
-<script>
-    (function () {
-        const dialog = document.getElementById('edit-dialog');
-        const form = document.getElementById('edit-form');
-        const idInput = document.getElementById('edit-id');
-        const nameEnInput = document.getElementById('edit-name-en');
-        const errorDiv = document.getElementById('edit-error');
-        const cancelBtn = document.getElementById('edit-cancel');
-        let currentRow = null;
-
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                currentRow = btn.closest('tr');
-                idInput.value = btn.dataset.id;
-                nameEnInput.value = btn.dataset.nameEn || '';
-                errorDiv.hidden = true;
-                errorDiv.textContent = '';
-                dialog.showModal();
-                nameEnInput.focus();
-                nameEnInput.select();
-            });
-        });
-
-        cancelBtn.addEventListener('click', () => dialog.close());
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            errorDiv.hidden = true;
-            const id = idInput.value;
-            const nameEn = nameEnInput.value;
-
-            try {
-                const res = await fetch(`/category/${encodeURIComponent(id)}/edit`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nameEn })
-                });
-                if (!res.ok) {
-                    let message = `Ошибка ${res.status}`;
-                    try {
-                        const body = await res.json();
-                        if (body && body.message) message = body.message;
-                    } catch (_) { /* not json */ }
-                    errorDiv.textContent = message;
-                    errorDiv.hidden = false;
-                    return;
-                }
-                if (currentRow) {
-                    const cell = currentRow.querySelector('.name-en');
-                    if (cell) cell.textContent = nameEn;
-                    const btn = currentRow.querySelector('.edit-btn');
-                    if (btn) btn.dataset.nameEn = nameEn;
-                }
-                dialog.close();
-            } catch (err) {
-                errorDiv.textContent = 'Network error';
-                errorDiv.hidden = false;
-            }
-        });
-    })();
-</script>
 </body>
 </html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit seller</title>
+    <th:block th:replace="~{fragments/form :: styles}"></th:block>
+</head>
+<body>
+<div class="card">
+    <h1>Edit seller</h1>
+
+    <form method="post"
+          th:action="@{/sellers/{id}/edit(id=${sellerId}, page=${page})}"
+          th:object="${form}">
+
+        <div class="field">
+            <label for="id">Seller ID</label>
+            <input type="text" id="id" th:value="${sellerId}" disabled>
+        </div>
+
+        <div class="field">
+            <label for="city">City</label>
+            <input type="text" id="city" th:field="*{city}" th:errorclass="input-error">
+            <span class="field-error"
+                  th:if="${#fields.hasErrors('city')}"
+                  th:errors="*{city}">error</span>
+        </div>
+
+        <div class="field">
+            <label for="state">State</label>
+            <input type="text" id="state" th:field="*{state}" th:errorclass="input-error">
+            <span class="field-error"
+                  th:if="${#fields.hasErrors('state')}"
+                  th:errors="*{state}">error</span>
+        </div>
+
+        <div class="actions">
+            <button type="submit">Save</button>
+            <a th:href="@{/sellers(page=${page})}">Cancel</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

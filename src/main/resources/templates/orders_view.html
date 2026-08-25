@@ -81,6 +81,7 @@
         }
         .filters .actions {
             display: flex;
+            align-items: center;
             gap: 8px;
         }
         .filters button {
@@ -90,17 +91,22 @@
             background: #eef4ff;
             color: #0b5aa2;
             font-size: 14px;
+            font-family: inherit;
             cursor: pointer;
         }
         .filters button:hover {
             background: #dbe8fb;
         }
-        .filters button.reset {
+        .filters a.reset {
+            padding: 6px 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             background: #fff;
-            border-color: #ddd;
             color: #555;
+            font-size: 14px;
+            text-decoration: none;
         }
-        .filters button.reset:hover {
+        .filters a.reset:hover {
             background: #f5f5f5;
         }
         .pagination {
@@ -136,152 +142,89 @@
 <div class="card">
     <h1>Orders</h1>
 
-    <form id="filters" class="filters" method="get" th:action="@{/orders}">
+    <form class="filters" method="get" th:action="@{/orders}" th:object="${orderFilter}">
         <div>
-            <label for="f-status">Status</label>
-            <select id="f-status" name="status">
-                <option value="">Any</option>
-                <option th:each="s : ${statuses}"
-                        th:value="${s}"
-                        th:text="${s}"
-                        th:selected="${orderFilter.status != null and orderFilter.status.name() == s.name()}"></option>
+            <label for="status">Status</label>
+            <select id="status" th:field="*{status}">
+                <option value="" th:value="''">Any</option>
+                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
             </select>
         </div>
         <div>
-            <label for="f-state">Customer state</label>
-            <input id="f-state" type="text" name="customerState" maxlength="2"
+            <label for="customerState">Customer state</label>
+            <input id="customerState" type="text" maxlength="2"
                    placeholder="e.g. SP"
-                   th:value="${orderFilter.customerState}">
+                   th:field="*{customerState}">
         </div>
         <div>
-            <label for="f-from">From</label>
-            <input id="f-from" type="date" name="dateFrom"
-                   th:value="${orderFilter.dateFrom}">
+            <label for="dateFrom">From</label>
+            <input id="dateFrom" type="date" th:field="*{dateFrom}">
         </div>
         <div>
-            <label for="f-to">To</label>
-            <input id="f-to" type="date" name="dateTo"
-                   th:value="${orderFilter.dateTo}">
+            <label for="dateTo">To</label>
+            <input id="dateTo" type="date" th:field="*{dateTo}">
         </div>
         <div class="actions">
             <button type="submit">Apply</button>
-            <button type="button" class="reset" id="filters-reset">Reset</button>
+            <a class="reset" th:href="@{/orders}">Reset</a>
         </div>
     </form>
 
-    <div id="orders-content" th:fragment="content">
-        <table>
-            <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Status</th>
-                <th>Customer</th>
-                <th>Purchased at</th>
-                <th>Estimated delivery</th>
-                <th>Delivered to customer</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="order : ${orders.content}">
-                <td>
-                    <a class="order-link"
-                       th:href="@{/orders/{id}(id=${order.orderId})}"
-                       th:text="${order.orderId}">-</a>
-                </td>
-                <td>
-                    <span th:replace="~{fragments/status :: badge(${order.orderStatus})}">STATUS</span>
-                </td>
-                <td th:text="${order.customer.customerCity} + ', ' + ${order.customer.customerState}">-</td>
-                <td th:text="${order.orderPurchaseTimestamp}">-</td>
-                <td th:text="${order.orderEstimatedDeliveryDate}">-</td>
-                <td>
-                    <span th:if="${order.orderDeliveredCustomerDate}" th:text="${order.orderDeliveredCustomerDate}">-</span>
-                    <span th:unless="${order.orderDeliveredCustomerDate}" class="muted">—</span>
-                </td>
-            </tr>
-            <tr th:if="${orders.empty}">
-                <td colspan="6" class="muted" style="text-align: center;">No orders match the current filter.</td>
-            </tr>
-            </tbody>
-        </table>
+    <table>
+        <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Status</th>
+            <th>Customer</th>
+            <th>Purchased at</th>
+            <th>Estimated delivery</th>
+            <th>Delivered to customer</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders.content}">
+            <td>
+                <a class="order-link"
+                   th:href="@{/orders/{id}(id=${order.orderId})}"
+                   th:text="${order.orderId}">-</a>
+            </td>
+            <td>
+                <span th:replace="~{fragments/status :: badge(${order.orderStatus})}">STATUS</span>
+            </td>
+            <td th:text="${order.customer.customerCity} + ', ' + ${order.customer.customerState}">-</td>
+            <td th:text="${order.orderPurchaseTimestamp}">-</td>
+            <td th:text="${order.orderEstimatedDeliveryDate}">-</td>
+            <td>
+                <span th:if="${order.orderDeliveredCustomerDate}" th:text="${order.orderDeliveredCustomerDate}">-</span>
+                <span th:unless="${order.orderDeliveredCustomerDate}" class="muted">—</span>
+            </td>
+        </tr>
+        <tr th:if="${orders.empty}">
+            <td colspan="6" class="muted" style="text-align: center;">No orders match the current filter.</td>
+        </tr>
+        </tbody>
+    </table>
 
-        <div class="pagination">
-            <a th:if="${orders.hasPrevious()}" class="page-link"
-               th:href="@{/orders(page=${orders.number - 1},
-                              status=${orderFilter.status},
-                              customerState=${orderFilter.customerState},
-                              dateFrom=${orderFilter.dateFrom},
-                              dateTo=${orderFilter.dateTo})}">← Prev</a>
-            <span th:unless="${orders.hasPrevious()}" class="disabled">← Prev</span>
+    <div class="pagination">
+        <a th:if="${orders.hasPrevious()}"
+           th:href="@{/orders(page=${orders.number - 1},
+                          status=${orderFilter.status},
+                          customerState=${orderFilter.customerState},
+                          dateFrom=${orderFilter.dateFrom},
+                          dateTo=${orderFilter.dateTo})}">← Prev</a>
+        <span th:unless="${orders.hasPrevious()}" class="disabled">← Prev</span>
 
-            <span class="info" th:text="'Page ' + ${orders.number + 1} + ' / ' + ${orders.totalPages}">Page 1</span>
+        <span class="info" th:text="'Page ' + ${orders.number + 1} + ' / ' + ${orders.totalPages}">Page 1</span>
 
-            <a th:if="${orders.hasNext()}" class="page-link"
-               th:href="@{/orders(page=${orders.number + 1},
-                              status=${orderFilter.status},
-                              customerState=${orderFilter.customerState},
-                              dateFrom=${orderFilter.dateFrom},
-                              dateTo=${orderFilter.dateTo})}">Next →</a>
-            <span th:unless="${orders.hasNext()}" class="disabled">Next →</span>
-        </div>
+        <a th:if="${orders.hasNext()}"
+           th:href="@{/orders(page=${orders.number + 1},
+                          status=${orderFilter.status},
+                          customerState=${orderFilter.customerState},
+                          dateFrom=${orderFilter.dateFrom},
+                          dateTo=${orderFilter.dateTo})}">Next →</a>
+        <span th:unless="${orders.hasNext()}" class="disabled">Next →</span>
     </div>
 </div>
 
-<script>
-    (function () {
-        const form = document.getElementById('filters');
-        const resetBtn = document.getElementById('filters-reset');
-
-        function buildUrl(base) {
-            const u = new URL(base, window.location.origin);
-            u.searchParams.set('fragment', 'true');
-            return u;
-        }
-
-        async function loadFragment(url) {
-            const u = buildUrl(url);
-            for (const [k, v] of Array.from(u.searchParams.entries())) {
-                if (v === '') u.searchParams.delete(k);
-            }
-            u.searchParams.set('fragment', 'true');
-            const res = await fetch(u, { headers: { 'Accept': 'text/html' } });
-            if (!res.ok) return;
-            const html = await res.text();
-            const tmpl = document.createElement('template');
-            tmpl.innerHTML = html.trim();
-            const next = tmpl.content.firstElementChild;
-            const current = document.getElementById('orders-content');
-            if (next && current) {
-                current.replaceWith(next);
-            }
-            u.searchParams.delete('fragment');
-            const qs = u.searchParams.toString();
-            history.replaceState(null, '', u.pathname + (qs ? '?' + qs : ''));
-        }
-
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const params = new URLSearchParams();
-            for (const [k, v] of new FormData(form)) {
-                if (v !== '') params.set(k, v);
-            }
-            params.set('page', '0');
-            loadFragment('/orders?' + params.toString());
-        });
-
-        resetBtn.addEventListener('click', function () {
-            form.reset();
-            loadFragment('/orders?page=0');
-        });
-
-        document.addEventListener('click', function (e) {
-            const link = e.target.closest('#orders-content a.page-link');
-            if (link) {
-                e.preventDefault();
-                loadFragment(link.getAttribute('href'));
-            }
-        });
-    })();
-</script>
 </body>
 </html>

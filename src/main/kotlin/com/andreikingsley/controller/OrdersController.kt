@@ -21,14 +21,13 @@ class OrdersController(
         @ModelAttribute("orderFilter") orderFilter: OrderFilter,
         @PageableDefault(size = 20, sort = ["orderPurchaseTimestamp"], direction = Sort.Direction.DESC)
         pageable: Pageable,
-        @RequestParam(defaultValue = "false") fragment: Boolean,
     ): String {
         val ordersPage = orderService.getPage(orderFilter, pageable)
 
         model.addAttribute("orders", ordersPage)
         model.addAttribute("statuses", OrderStatus.entries)
 
-        return if (fragment) "orders_view :: content" else "orders_view"
+        return "orders_view"
     }
 
     @GetMapping("/orders/{id}")

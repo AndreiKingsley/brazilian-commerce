@@ -34,6 +34,13 @@ class SellerService(
         return repository.findAll(pageable).map { it.toSellerDto() }
     }
 
+    @Transactional(readOnly = true)
+    fun getDtoById(id: String): SellerDto {
+        return repository.findById(id)
+            .map { it.toSellerDto() }
+            .orElseThrow { EntityNotFoundException("Seller with ID $id not found") }
+    }
+
     fun Seller.updateCity(newCity: String) {
         val oldCity = sellerCity
         if (oldCity != newCity) {
