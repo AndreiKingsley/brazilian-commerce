@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Orders</title>
+    <title>Audit</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,7 +12,7 @@
             color: #222;
         }
         .card {
-            max-width: 960px;
+            max-width: 1080px;
             margin: 0 auto;
             background: #fff;
             border: 1px solid #ddd;
@@ -28,6 +28,21 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            /* fixed layout + overflow-wrap keeps a long value inside its column
+               instead of stretching the table past the card */
+            table-layout: fixed;
+        }
+        .col-time {
+            width: 200px;
+        }
+        .col-entity {
+            width: 100px;
+        }
+        .col-id {
+            width: 210px;
+        }
+        .col-field {
+            width: 150px;
         }
         th, td {
             overflow-wrap: anywhere;
@@ -45,16 +60,25 @@
         tbody tr:hover {
             background: #fbfbfb;
         }
-        a.order-link {
-            color: #0b5aa2;
-            text-decoration: none;
+        .mono {
             font-family: monospace;
-        }
-        a.order-link:hover {
-            text-decoration: underline;
+            color: #555;
         }
         .muted {
             color: #999;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            background: #eef4ff;
+            color: #0b5aa2;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+            /* an entity name never wraps, even inside a cell that breaks long values */
+            white-space: nowrap;
+            overflow-wrap: normal;
         }
         .filters {
             display: grid;
@@ -137,97 +161,64 @@
             color: #666;
         }
     </style>
-    <th:block th:replace="~{fragments/status :: styles}"></th:block>
     <th:block th:replace="~{fragments/nav :: styles}"></th:block>
 </head>
 <body>
 <div class="card">
     <div th:replace="~{fragments/nav :: bar(null)}"></div>
-    <h1>Orders</h1>
+    <h1>Audit</h1>
 
-    <form class="filters" method="get" th:action="@{/orders}" th:object="${orderFilter}">
+    <form class="filters" method="get" th:action="@{/audit}" th:object="${auditFilter}">
         <div>
-            <label for="status">Status</label>
-            <select id="status" th:field="*{status}">
+            <label for="entityType">Entity</label>
+            <select id="entityType" th:field="*{entityType}">
                 <option value="" th:value="''">Any</option>
-                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
+                <option th:each="e : ${dbEntities}" th:value="${e}" th:text="${e}"></option>
             </select>
-        </div>
-        <div>
-            <label for="customerState">Customer state</label>
-            <input id="customerState" type="text" maxlength="2"
-                   placeholder="e.g. SP"
-                   th:field="*{customerState}">
-        </div>
-        <div>
-            <label for="dateFrom">From</label>
-            <input id="dateFrom" type="date" th:field="*{dateFrom}">
-        </div>
-        <div>
-            <label for="dateTo">To</label>
-            <input id="dateTo" type="date" th:field="*{dateTo}">
         </div>
         <div class="actions">
             <button type="submit">Apply</button>
-            <a class="reset" th:href="@{/orders}">Reset</a>
+            <a class="reset" th:href="@{/audit}">Reset</a>
         </div>
     </form>
 
     <table>
         <thead>
         <tr>
-            <th>Order ID</th>
-            <th>Status</th>
-            <th>Customer</th>
-            <th>Purchased at</th>
-            <th>Estimated delivery</th>
-            <th>Delivered to customer</th>
+            <th class="col-time">Changed at</th>
+            <th class="col-entity">Entity</th>
+            <th class="col-id">Entity ID</th>
+            <th class="col-field">Field</th>
+            <th>Old value</th>
+            <th>New value</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="order : ${orders.content}">
-            <td>
-                <a class="order-link"
-                   th:href="@{/orders/{id}(id=${order.orderId})}"
-                   th:text="${order.orderId}">-</a>
-            </td>
-            <td>
-                <span th:replace="~{fragments/status :: badge(${order.orderStatus})}">STATUS</span>
-            </td>
-            <td th:text="${order.customer.customerCity} + ', ' + ${order.customer.customerState}">-</td>
-            <td th:text="${order.orderPurchaseTimestamp}">-</td>
-            <td th:text="${order.orderEstimatedDeliveryDate}">-</td>
-            <td>
-                <span th:if="${order.orderDeliveredCustomerDate}" th:text="${order.orderDeliveredCustomerDate}">-</span>
-                <span th:unless="${order.orderDeliveredCustomerDate}" class="muted">—</span>
-            </td>
+        <tr th:each="row : ${audit.content}">
+            <td th:text="${row.changedAt}">-</td>
+            <td><span class="tag" th:text="${row.entityType}">-</span></td>
+            <td class="mono" th:text="${row.entityId}">-</td>
+            <td class="mono" th:text="${row.field}">-</td>
+            <td th:text="${row.oldValue}">-</td>
+            <td th:text="${row.newValue}">-</td>
         </tr>
-        <tr th:if="${orders.empty}">
-            <td colspan="6" class="muted" style="text-align: center;">No orders match the current filter.</td>
+        <tr th:if="${audit.empty}">
+            <td colspan="6" class="muted" style="text-align: center;">No audit records match the current filter.</td>
         </tr>
         </tbody>
     </table>
 
     <div class="pagination">
-        <a th:if="${orders.hasPrevious()}"
-           th:href="@{/orders(page=${orders.number - 1},
-                          status=${orderFilter.status},
-                          customerState=${orderFilter.customerState},
-                          dateFrom=${orderFilter.dateFrom},
-                          dateTo=${orderFilter.dateTo})}">← Prev</a>
-        <span th:unless="${orders.hasPrevious()}" class="disabled">← Prev</span>
+        <a th:if="${audit.hasPrevious()}"
+           th:href="@{/audit(page=${audit.number - 1}, entityType=${auditFilter.entityType})}">← Prev</a>
+        <span th:unless="${audit.hasPrevious()}" class="disabled">← Prev</span>
 
-        <span class="info" th:text="'Page ' + ${orders.number + 1} + ' / ' + ${orders.totalPages}">Page 1</span>
+        <span class="info" th:text="'Page ' + ${audit.number + 1} + ' / ' + ${audit.totalPages}">Page 1</span>
 
-        <a th:if="${orders.hasNext()}"
-           th:href="@{/orders(page=${orders.number + 1},
-                          status=${orderFilter.status},
-                          customerState=${orderFilter.customerState},
-                          dateFrom=${orderFilter.dateFrom},
-                          dateTo=${orderFilter.dateTo})}">Next →</a>
-        <span th:unless="${orders.hasNext()}" class="disabled">Next →</span>
+        <a th:if="${audit.hasNext()}"
+           th:href="@{/audit(page=${audit.number + 1}, entityType=${auditFilter.entityType})}">Next →</a>
+        <span th:unless="${audit.hasNext()}" class="disabled">Next →</span>
     </div>
 </div>
-
 </body>
 </html>

@@ -1,14 +1,25 @@
 package com.andreikingsley.service
 
 import com.andreikingsley.domain.Category
+import com.andreikingsley.domain.audit.DbEntity
+import com.andreikingsley.domain.dto.CategoryDto
+import com.andreikingsley.domain.dto.toCategoryDto
+import com.andreikingsley.domain.edit.CategoryEdit
 import com.andreikingsley.repository.CategoryRepository
 import jakarta.persistence.EntityManager
+import jakarta.persistence.EntityNotFoundException
 import jakarta.persistence.PersistenceContext
-import org.springframework.transaction.annotation.Transactional
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
 
 @Service
-class CategoryService(private val repository: CategoryRepository) {
+class CategoryService(
+    private val repository: CategoryRepository,
+    private val auditService: AuditService,
+) {
     @PersistenceContext
     private lateinit var em: EntityManager
 
@@ -19,5 +30,36 @@ class CategoryService(private val repository: CategoryRepository) {
 
     fun getByName(name: String): Category? {
         return repository.findById(name).map { it }.orElse(null)
+    }
+
+    @Transactional(readOnly = true)
+    fun getPage(pageable: Pageable): Page<CategoryDto> {
+        return repository.findAll(pageable).map { it.toCategoryDto() }
+    }
+
+    @Transactional(readOnly = true)
+    fun getDtoByName(name: String): CategoryDto {
+        return repository.findById(name)
+            .map { it.toCategoryDto() }
+            .orElseThrow { EntityNotFoundException("Category $name not found") }
+    }
+
+    fun Category.updateName(newName: String) {
+        val oldName = productCategoryNameEnglish
+
+        if (oldName != newName) {
+            productCategoryNameEnglish = newName
+            auditService.audit(DbEntity.CATEGORY, productCategoryName, "product_category_name", oldName, newName)
+        }
+    }
+
+    @Transactional
+    fun editCategory(name: String, edit: CategoryEdit): Category {
+        val category = repository.findById(name)
+            .orElseThrow { EntityNotFoundException("Category $name not found") }
+
+        category.updateName(edit.nameEn)
+
+        return category
     }
 }

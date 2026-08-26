@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping
 
 @Controller
 class ProductsController(private val productService: ProductService) {
-
-    private val rowsPerPage = 20
-
     @GetMapping("/products")
     fun products(
         model: Model,
