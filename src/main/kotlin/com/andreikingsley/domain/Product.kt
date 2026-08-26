@@ -9,7 +9,7 @@ class Product(
     @Column(name = "product_id")
     var productId: String,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_category_name")
     var productCategoryName: Category?,
 

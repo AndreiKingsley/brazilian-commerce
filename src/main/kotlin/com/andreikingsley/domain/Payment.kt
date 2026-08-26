@@ -1,6 +1,7 @@
 package com.andreikingsley.domain
 
 import jakarta.persistence.*
+import java.math.BigDecimal
 
 @Entity
 @Table(name = "payments")
@@ -9,7 +10,7 @@ class Payment(
     @Column("payment_id")
     var paymentId: String,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     var order: Order,
 
@@ -24,5 +25,5 @@ class Payment(
     var paymentType: String,
 
     @Column(name = "payment_value")
-    var paymentValue: Double,
+    var paymentValue: BigDecimal,
 )

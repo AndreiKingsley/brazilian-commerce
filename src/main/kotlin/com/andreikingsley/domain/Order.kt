@@ -10,7 +10,7 @@ class Order(
     @Column(name = "order_id")
     var orderId: String,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     var customer: Customer,
 
