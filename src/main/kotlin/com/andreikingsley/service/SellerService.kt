@@ -41,19 +41,23 @@ class SellerService(
             .orElseThrow { EntityNotFoundException("Seller with ID $id not found") }
     }
 
-    fun Seller.updateCity(newCity: String) {
+    private fun audit(sellerId: String, field: String, oldValue: String, newValue: String) {
+        auditService.audit(DbEntity.SELLER, sellerId, field, oldValue, newValue)
+    }
+
+    private fun Seller.updateCity(newCity: String) {
         val oldCity = sellerCity
         if (oldCity != newCity) {
             sellerCity = newCity
-            auditService.audit(DbEntity.SELLER, sellerId, "seller_city", oldCity, newCity)
+            audit(sellerId, "seller_city", oldCity, newCity)
         }
     }
 
-    fun Seller.updateState(newState: String) {
+    private fun Seller.updateState(newState: String) {
         val oldState = sellerState
         if (oldState != newState) {
             sellerState = newState
-            auditService.audit(DbEntity.SELLER, sellerId,"seller_state", oldState, newState)
+            audit(sellerId,"seller_state", oldState, newState)
         }
     }
 
