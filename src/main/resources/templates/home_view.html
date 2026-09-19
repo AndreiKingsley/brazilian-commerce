@@ -31,6 +31,19 @@
             padding-bottom: 20px;
             border-bottom: 1px solid #eee;
         }
+        h2 {
+            font-size: 13px;
+            font-weight: normal;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin: 0 0 12px;
+        }
+        section + section {
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px solid #eee;
+        }
         .nav {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -67,32 +80,59 @@
     <h1>Brazilian E-commerce</h1>
     <p class="subtitle">Browse the Olist dataset: orders, customers, sellers, products and categories.</p>
 
-    <nav class="nav">
-        <a th:href="@{/orders}">
-            <div class="title">Orders</div>
-            <div class="desc">List of orders with filters. Open any order to see its full card.</div>
-        </a>
-        <a th:href="@{/customers}">
-            <div class="title">Customers</div>
-            <div class="desc">List of customers.</div>
-        </a>
-        <a th:href="@{/sellers}">
-            <div class="title">Sellers</div>
-            <div class="desc">List of sellers. City and state can be edited.</div>
-        </a>
-        <a th:href="@{/products}">
-            <div class="title">Products</div>
-            <div class="desc">List of products.</div>
-        </a>
-        <a th:href="@{/categories}">
-            <div class="title">Categories</div>
-            <div class="desc">List of categories. English name can be edited.</div>
-        </a>
-        <a th:href="@{/audit}">
-            <div class="title">Audit</div>
-            <div class="desc">Log of edits with filter by entity.</div>
-        </a>
-    </nav>
+    <section>
+        <h2>Data</h2>
+        <nav class="nav">
+            <a th:href="@{/orders}">
+                <div class="title">Orders</div>
+                <div class="desc">List of orders with filters. Open any order to see its full card.</div>
+            </a>
+            <a th:href="@{/customers}">
+                <div class="title">Customers</div>
+                <div class="desc">List of customers.</div>
+            </a>
+            <a th:href="@{/sellers}">
+                <div class="title">Sellers</div>
+                <div class="desc">List of sellers. City and state can be edited.</div>
+            </a>
+            <a th:href="@{/products}">
+                <div class="title">Products</div>
+                <div class="desc">List of products.</div>
+            </a>
+            <a th:href="@{/categories}">
+                <div class="title">Categories</div>
+                <div class="desc">List of categories. English name can be edited.</div>
+            </a>
+        </nav>
+    </section>
+
+    <section>
+        <h2>Audit</h2>
+        <nav class="nav">
+            <a th:href="@{/audit}">
+                <div class="title">Audit</div>
+                <div class="desc">Log of edits with filter by entity.</div>
+            </a>
+        </nav>
+    </section>
+
+    <section>
+        <h2>Reports</h2>
+        <nav class="nav">
+            <a th:href="@{/report/revenue}">
+                <div class="title">Revenue</div>
+                <div class="desc">Monthly revenue with charts, average bill, top categories and sellers.</div>
+            </a>
+            <a th:href="@{/report/geo}">
+                <div class="title">Geo</div>
+                <div class="desc">Revenue by month and customer state: heatmap and matrix.</div>
+            </a>
+            <a th:href="@{/report/delivery}">
+                <div class="title">Delivery</div>
+                <div class="desc">Delivery delays: overall rate, by customer state and by review score.</div>
+            </a>
+        </nav>
+    </section>
 </div>
 </body>
 </html>

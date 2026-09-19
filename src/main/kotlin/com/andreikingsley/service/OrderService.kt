@@ -4,7 +4,9 @@ import com.andreikingsley.domain.Order
 import com.andreikingsley.domain.dto.OrderCard
 import com.andreikingsley.domain.dto.OrderDto
 import com.andreikingsley.domain.dto.OrderFilter
+import com.andreikingsley.domain.dto.OrderItemDto
 import com.andreikingsley.domain.dto.toOrderDto
+import com.andreikingsley.domain.dto.toOrderItemDto
 import com.andreikingsley.domain.dto.toSpecification
 import com.andreikingsley.repository.OrderRepository
 import jakarta.persistence.EntityManager
@@ -44,5 +46,10 @@ class OrderService(
         val orderItems = orderItemService.getOrderItemsDto(order.orderId)
         val totalPrice = payments.sumOf { it.paymentValue }
         return OrderCard(order.toOrderDto(), reviews, payments, orderItems, totalPrice)
+    }
+
+    @Transactional(readOnly = true)
+    fun getAllOrdersDto(): List<OrderDto> {
+        return repository.findAll().map { it.toOrderDto() }
     }
 }

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delivery report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 24px;
+            color: #222;
+        }
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 24px;
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 12px;
+        }
+        h2 {
+            font-size: 15px;
+            font-weight: normal;
+            color: #666;
+            margin: 28px 0 8px;
+        }
+        /* One block per metric: its numbers on the left, its plot on the right */
+        .block {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            align-items: flex-start;
+        }
+        .block > .data {
+            flex: 1 1 360px;
+            min-width: 0;
+        }
+        .block > .plot {
+            flex: 1 1 460px;
+            min-width: 0;
+            margin: 0;
+        }
+        .plot figcaption {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        .chart {
+            display: block;
+            width: 100%;
+            height: 440px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            background: #fff;
+        }
+        .stat {
+            border: 1px solid #eee;
+            border-radius: 4px;
+            background: #fafafa;
+            padding: 12px 16px;
+        }
+        .stat + .stat {
+            margin-top: 12px;
+        }
+        .stat .label {
+            font-size: 12px;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .stat .value {
+            font-size: 22px;
+            font-family: monospace;
+            margin-top: 6px;
+            white-space: nowrap;
+        }
+        .stat .hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+        /* Tables stay as tall as the plot next to them and scroll under a pinned header */
+        .table-wrap {
+            max-height: 440px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        thead th {
+            position: sticky;
+            top: 0;
+            color: #666;
+            font-weight: normal;
+            background: #fafafa;
+            box-shadow: inset 0 -1px 0 #eee;
+        }
+        tbody tr:hover {
+            background: #fbfbfb;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .col-rank {
+            width: 32px;
+            color: #999;
+            text-align: right;
+        }
+        .num {
+            text-align: right;
+            font-family: monospace;
+            white-space: nowrap;
+        }
+        .col-share {
+            width: 34%;
+        }
+        .bar {
+            background: #eef4ff;
+            border: 1px solid #d0dcee;
+            border-radius: 3px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .bar > span {
+            display: block;
+            height: 100%;
+            background: #0b5aa2;
+        }
+        .score {
+            font-family: monospace;
+            color: #d99100;
+            letter-spacing: .1em;
+        }
+        .muted {
+            color: #999;
+        }
+    </style>
+    <th:block th:replace="~{fragments/nav :: styles}"></th:block>
+</head>
+<body>
+<div class="card">
+    <div th:replace="~{fragments/nav :: bar(null)}"></div>
+    <h1>Delivery report</h1>
+
+    <!-- Each plot is a whole HTML document with its own scripts, so it lives in an iframe.
+         srcdoc keeps both in this response: no extra requests, deliveryReport() runs once per page view. -->
+
+    <h2>Overall</h2>
+    <div class="block">
+        <div class="data">
+            <div class="stat">
+                <div class="label">Delay rate</div>
+                <div class="value"
+                     th:text="${#numbers.formatDecimal(report.delayRateGlobal * 100, 1, 'POINT', 2, 'POINT')} + ' %'">—
+                </div>
+                <div class="hint">Delivered orders that arrived after the estimated date</div>
+            </div>
+            <div class="stat">
+                <div class="label">Average delay</div>
+                <div class="value"
+                     th:text="${#numbers.formatDecimal(report.averageDelayGlobal, 1, 'POINT', 2, 'POINT')} + ' days'">—
+                </div>
+            </div>
+        </div>
+        <figure class="plot">
+            <figcaption>Delayed vs on time</figcaption>
+            <iframe class="chart"
+                    title="Delayed vs on time"
+                    th:attr="srcdoc=${report.delayRateChartHtml}"></iframe>
+        </figure>
+    </div>
+
+    <h2>By customer state</h2>
+    <div class="block">
+        <div class="data">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th class="col-rank">#</th>
+                        <th>State</th>
+                        <th class="num">Delay rate</th>
+                        <th class="col-share">&nbsp;</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="row, it : ${report.delayRateByState}">
+                        <td class="col-rank" th:text="${it.count}">-</td>
+                        <td th:text="${row.state}">-</td>
+                        <td class="num"
+                            th:text="${#numbers.formatDecimal(row.delayRate * 100, 1, 'POINT', 2, 'POINT')} + ' %'">-
+                        </td>
+                        <td class="col-share">
+                            <!-- delayRate is a 0..1 share, so it maps to the bar width directly -->
+                            <div class="bar">
+                                <span th:style="'width:' + ${#numbers.formatDecimal(row.delayRate * 100, 1, 'POINT', 2, 'POINT')} + '%'"></span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(report.delayRateByState)}">
+                        <td colspan="4" class="muted" style="text-align: center;">No states.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <figure class="plot">
+            <figcaption>Delay rate by state</figcaption>
+            <iframe class="chart"
+                    title="Delay rate by state"
+                    th:attr="srcdoc=${report.delayRateByStateChartHtml}"></iframe>
+        </figure>
+    </div>
+
+    <h2>By review score</h2>
+    <div class="block">
+        <div class="data">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Review score</th>
+                        <th class="num">Average delay</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="row : ${report.delayRateByScore}">
+                        <td>
+                            <span class="score" th:text="${#strings.repeat('★', row.score)}">-</span>
+                            <span class="muted" th:text="${row.score}">-</span>
+                        </td>
+                        <td class="num"
+                            th:text="${#numbers.formatDecimal(row.averageDelay, 1, 'POINT', 2, 'POINT')} + ' days'">-
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(report.delayRateByScore)}">
+                        <td colspan="2" class="muted" style="text-align: center;">No reviews.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <figure class="plot">
+            <figcaption>Average delay by review score</figcaption>
+            <iframe class="chart"
+                    title="Average delay by review score"
+                    th:attr="srcdoc=${report.delayRateByScoreChartHtml}"></iframe>
+        </figure>
+    </div>
+</div>
+</body>
+</html>
