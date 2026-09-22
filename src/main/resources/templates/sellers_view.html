@@ -30,6 +30,7 @@
             border-collapse: collapse;
         }
         th, td {
+            overflow-wrap: anywhere;
             text-align: left;
             padding: 8px 8px;
             border-bottom: 1px solid #f0f0f0;
@@ -50,6 +51,23 @@
         }
         .muted {
             color: #999;
+        }
+        .col-actions {
+            width: 90px;
+            text-align: right;
+        }
+        a.btn {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #eef4ff;
+            border: 1px solid #d0dcee;
+            color: #0b5aa2;
+            border-radius: 4px;
+            font-size: 13px;
+            text-decoration: none;
+        }
+        a.btn:hover {
+            background: #dbe8fb;
         }
         .pagination {
             display: flex;
@@ -78,9 +96,11 @@
             color: #666;
         }
     </style>
+    <th:block th:replace="~{fragments/nav :: styles}"></th:block>
 </head>
 <body>
 <div class="card">
+    <div th:replace="~{fragments/nav :: bar('SELLER')}"></div>
     <h1>Sellers</h1>
 
     <table>
@@ -90,6 +110,7 @@
             <th>City</th>
             <th>State</th>
             <th>ZIP prefix</th>
+            <th class="col-actions"></th>
         </tr>
         </thead>
         <tbody>
@@ -98,9 +119,13 @@
             <td th:text="${seller.sellerCity}">-</td>
             <td th:text="${seller.sellerState}">-</td>
             <td th:text="${seller.sellerZipCodePrefix}">-</td>
+            <td class="col-actions">
+                <a class="btn"
+                   th:href="@{/sellers/{id}/edit(id=${seller.sellerId}, page=${sellers.number})}">Edit</a>
+            </td>
         </tr>
         <tr th:if="${sellers.empty}">
-            <td colspan="4" class="muted" style="text-align: center;">No sellers on this page.</td>
+            <td colspan="5" class="muted" style="text-align: center;">No sellers on this page.</td>
         </tr>
         </tbody>
     </table>

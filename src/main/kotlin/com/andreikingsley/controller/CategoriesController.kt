@@ -1,7 +1,7 @@
 package com.andreikingsley.controller
 
-import com.andreikingsley.domain.edit.SellerEdit
-import com.andreikingsley.service.SellerService
+import com.andreikingsley.domain.edit.CategoryEdit
+import com.andreikingsley.service.CategoryService
 import jakarta.persistence.EntityNotFoundException
 import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
@@ -13,21 +13,22 @@ import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
 
 @Controller
-@RequestMapping("/sellers")
-class SellersController(private val sellerService: SellerService) {
+@RequestMapping("/categories")
+class CategoriesController(
+    private val categoryService: CategoryService,
+) {
 
     @GetMapping
-    fun sellers(
+    fun categories(
         model: Model,
         @PageableDefault(size = 20)
         pageable: Pageable,
     ): String {
+        val categoriesPage = categoryService.getPage(pageable)
 
-        val sellersPage = sellerService.getPage(pageable)
+        model.addAttribute("categories", categoriesPage)
 
-        model.addAttribute("sellers", sellersPage)
-
-        return "sellers_view"
+        return "categories_view"
     }
 
     @GetMapping("/{id}/edit")
@@ -36,18 +37,18 @@ class SellersController(private val sellerService: SellerService) {
         @RequestParam(defaultValue = "0") page: Int,
         model: Model,
     ): String {
-        val seller = sellerService.getDtoById(id)
+        val category = categoryService.getDtoByName(id)
 
-        model.addAttribute("form", SellerEdit(city = seller.sellerCity, state = seller.sellerState))
+        model.addAttribute("form", CategoryEdit(nameEn = category.productCategoryNameEnglish))
 
         return editView(model, id, page)
     }
 
     @PostMapping("/{id}/edit")
-    fun editSeller(
+    fun editCategory(
         @PathVariable id: String,
         @RequestParam(defaultValue = "0") page: Int,
-        @Valid @ModelAttribute("form") form: SellerEdit,
+        @Valid @ModelAttribute("form") form: CategoryEdit,
         bindingResult: BindingResult,
         model: Model,
     ): String {
@@ -55,16 +56,16 @@ class SellersController(private val sellerService: SellerService) {
             return editView(model, id, page)
         }
 
-        sellerService.edit(id, form)
+        categoryService.editCategory(id, form)
 
-        return "redirect:/sellers?page=$page"
+        return "redirect:/categories?page=$page"
     }
 
     private fun editView(model: Model, id: String, page: Int): String {
-        model.addAttribute("sellerId", id)
+        model.addAttribute("categoryId", id)
         model.addAttribute("page", page)
 
-        return "seller_edit_view"
+        return "category_edit_view"
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)

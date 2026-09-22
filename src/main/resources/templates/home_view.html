@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Brazilian E-commerce</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 24px;
+            color: #222;
+        }
+        .card {
+            max-width: 720px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 32px;
+        }
+        h1 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+        }
+        .nav a {
+            display: block;
+            padding: 16px;
+            border: 1px solid #e6e6e6;
+            border-radius: 6px;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .nav a:hover {
+            border-color: #b6d9f5;
+            background: #f7fbff;
+        }
+        .nav a .title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #0b5aa2;
+            margin-bottom: 4px;
+        }
+        .nav a .desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Brazilian E-commerce</h1>
+    <p class="subtitle">Browse the Olist dataset: orders, customers, sellers, products and categories.</p>
+
+    <nav class="nav">
+        <a th:href="@{/orders}">
+            <div class="title">Orders</div>
+            <div class="desc">List of orders with filters. Open any order to see its full card.</div>
+        </a>
+        <a th:href="@{/customers}">
+            <div class="title">Customers</div>
+            <div class="desc">List of customers.</div>
+        </a>
+        <a th:href="@{/sellers}">
+            <div class="title">Sellers</div>
+            <div class="desc">List of sellers. City and state can be edited.</div>
+        </a>
+        <a th:href="@{/products}">
+            <div class="title">Products</div>
+            <div class="desc">List of products.</div>
+        </a>
+        <a th:href="@{/categories}">
+            <div class="title">Categories</div>
+            <div class="desc">List of categories. English name can be edited.</div>
+        </a>
+        <a th:href="@{/audit}">
+            <div class="title">Audit</div>
+            <div class="desc">Log of edits with filter by entity.</div>
+        </a>
+    </nav>
+</div>
+</body>
+</html>

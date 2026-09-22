@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit category</title>
+    <th:block th:replace="~{fragments/form :: styles}"></th:block>
+    <th:block th:replace="~{fragments/nav :: styles}"></th:block>
+</head>
+<body>
+<div class="card">
+    <div th:replace="~{fragments/nav :: bar('CATEGORY')}"></div>
+    <h1>Edit category</h1>
+
+    <form method="post"
+          th:action="@{/categories/{id}/edit(id=${categoryId}, page=${page})}"
+          th:object="${form}">
+
+        <div class="field">
+            <label for="id">ID</label>
+            <input type="text" id="id" th:value="${categoryId}" disabled>
+        </div>
+
+        <div class="field">
+            <label for="nameEn">English name</label>
+            <input type="text" id="nameEn" th:field="*{nameEn}" th:errorclass="input-error">
+            <span class="field-error"
+                  th:if="${#fields.hasErrors('nameEn')}"
+                  th:errors="*{nameEn}">error</span>
+        </div>
+
+        <div class="actions">
+            <button type="submit">Save</button>
+            <a th:href="@{/categories(page=${page})}">Cancel</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Products</title>
+    <title>Categories</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,9 +52,22 @@
         .muted {
             color: #999;
         }
-        td.num {
+        .col-actions {
+            width: 90px;
             text-align: right;
-            font-variant-numeric: tabular-nums;
+        }
+        a.btn {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #eef4ff;
+            border: 1px solid #d0dcee;
+            color: #0b5aa2;
+            border-radius: 4px;
+            font-size: 13px;
+            text-decoration: none;
+        }
+        a.btn:hover {
+            background: #dbe8fb;
         }
         .pagination {
             display: flex;
@@ -87,56 +100,40 @@
 </head>
 <body>
 <div class="card">
-    <div th:replace="~{fragments/nav :: bar(null)}"></div>
-    <h1>Products</h1>
+    <div th:replace="~{fragments/nav :: bar('CATEGORY')}"></div>
+    <h1>Categories</h1>
 
     <table>
         <thead>
         <tr>
-            <th>Product ID</th>
-            <th>Category</th>
-            <th>Weight (g)</th>
-            <th>Dimensions (L×W×H cm)</th>
-            <th>Photos</th>
+            <th>Name</th>
+            <th>English name</th>
+            <th class="col-actions"></th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="product : ${products.content}">
-            <td class="mono" th:text="${product.productId}">-</td>
-            <td>
-                <span th:if="${product.productCategoryName}"
-                      th:text="${product.productCategoryName.productCategoryName}">-</span>
-                <span th:unless="${product.productCategoryName}" class="muted">—</span>
-            </td>
-            <td class="num">
-                <span th:if="${product.productWeightG != null}" th:text="${product.productWeightG}">-</span>
-                <span th:unless="${product.productWeightG != null}" class="muted">—</span>
-            </td>
-            <td class="num">
-                <span th:if="${product.productLengthCm != null and product.productWidthCm != null and product.productHeightCm != null}"
-                      th:text="${product.productLengthCm} + '×' + ${product.productWidthCm} + '×' + ${product.productHeightCm}">-</span>
-                <span th:unless="${product.productLengthCm != null and product.productWidthCm != null and product.productHeightCm != null}"
-                      class="muted">—</span>
-            </td>
-            <td class="num">
-                <span th:if="${product.productPhotosQty != null}" th:text="${product.productPhotosQty}">-</span>
-                <span th:unless="${product.productPhotosQty != null}" class="muted">—</span>
+        <tr th:each="category : ${categories.content}">
+            <td class="mono" th:text="${category.productCategoryName}">-</td>
+            <td th:text="${category.productCategoryNameEnglish}">-</td>
+            <td class="col-actions">
+                <a class="btn"
+                   th:href="@{/categories/{id}/edit(id=${category.productCategoryName}, page=${categories.number})}">Edit</a>
             </td>
         </tr>
-        <tr th:if="${products.empty}">
-            <td colspan="5" class="muted" style="text-align: center;">No products on this page.</td>
+        <tr th:if="${categories.empty}">
+            <td colspan="3" class="muted" style="text-align: center;">No categories on this page.</td>
         </tr>
         </tbody>
     </table>
 
     <div class="pagination">
-        <a th:if="${products.hasPrevious()}" th:href="@{/products(page=${products.number - 1})}">← Prev</a>
-        <span th:unless="${products.hasPrevious()}" class="disabled">← Prev</span>
+        <a th:if="${categories.hasPrevious()}" th:href="@{/categories(page=${categories.number - 1})}">← Prev</a>
+        <span th:unless="${categories.hasPrevious()}" class="disabled">← Prev</span>
 
-        <span class="info" th:text="'Page ' + ${products.number + 1} + ' / ' + ${products.totalPages}">Page 1</span>
+        <span class="info" th:text="'Page ' + ${categories.number + 1} + ' / ' + ${categories.totalPages}">Page 1</span>
 
-        <a th:if="${products.hasNext()}" th:href="@{/products(page=${products.number + 1})}">Next →</a>
-        <span th:unless="${products.hasNext()}" class="disabled">Next →</span>
+        <a th:if="${categories.hasNext()}" th:href="@{/categories(page=${categories.number + 1})}">Next →</a>
+        <span th:unless="${categories.hasNext()}" class="disabled">Next →</span>
     </div>
 </div>
 </body>

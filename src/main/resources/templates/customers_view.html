@@ -30,6 +30,7 @@
             border-collapse: collapse;
         }
         th, td {
+            overflow-wrap: anywhere;
             text-align: left;
             padding: 8px 8px;
             border-bottom: 1px solid #f0f0f0;
@@ -78,9 +79,11 @@
             color: #666;
         }
     </style>
+    <th:block th:replace="~{fragments/nav :: styles}"></th:block>
 </head>
 <body>
 <div class="card">
+    <div th:replace="~{fragments/nav :: bar(null)}"></div>
     <h1>Customers</h1>
 
     <table>

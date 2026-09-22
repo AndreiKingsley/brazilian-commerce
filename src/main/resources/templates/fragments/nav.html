@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<style th:fragment="styles">
+    .page-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    .page-nav a {
+        display: inline-block;
+        padding: 6px 12px;
+        border: 1px solid #d0dcee;
+        border-radius: 4px;
+        background: #eef4ff;
+        color: #0b5aa2;
+        font-size: 13px;
+        text-decoration: none;
+    }
+    .page-nav a:hover {
+        background: #dbe8fb;
+    }
+</style>
+
+<!-- auditEntity: DbEntity name of the audited entity, or null for pages without audit -->
+<div th:fragment="bar(auditEntity)" class="page-nav">
+    <a th:href="@{/home}">← Home</a>
+    <a th:if="${auditEntity != null}"
+       th:href="@{/audit(entityType=${auditEntity})}"
+       th:text="'Audit: ' + ${auditEntity}">Audit</a>
+</div>
+
+</body>
+</html>
