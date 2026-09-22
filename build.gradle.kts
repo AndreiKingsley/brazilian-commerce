@@ -1,9 +1,10 @@
 plugins {
-    kotlin("jvm") version "2.4.0"
-    kotlin("plugin.spring") version "2.4.0"
+    kotlin("jvm") version "2.4.10"
+    kotlin("plugin.spring") version "2.4.10"
+    kotlin("plugin.dataframe") version "2.4.10"
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.jpa") version "2.4.0"
+    kotlin("plugin.jpa") version "2.4.10"
 }
 
 group = "com.andreikingsley"
@@ -18,6 +19,7 @@ java {
 
 repositories {
     mavenCentral()
+    maven("https://packages.jetbrains.team/maven/p/kds/kotlin-ds-maven")
 }
 
 dependencies {
@@ -36,6 +38,10 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    implementation("org.jetbrains.kotlinx:dataframe:1.0.0-rc01")
+    implementation("org.jetbrains.kotlinx:kandy-lets-plot:0.8.5")
+    implementation("org.jetbrains.kotlinx:kotlin-statistics-jvm:0.8.5")
 }
 
 kotlin {

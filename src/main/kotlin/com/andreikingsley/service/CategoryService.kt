@@ -11,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException
 import jakarta.persistence.PersistenceContext
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -29,7 +30,7 @@ class CategoryService(
     }
 
     fun getByName(name: String): Category? {
-        return repository.findById(name).map { it }.orElse(null)
+        return repository.findByIdOrNull(name)
     }
 
     @Transactional(readOnly = true)
@@ -44,12 +45,12 @@ class CategoryService(
             .orElseThrow { EntityNotFoundException("Category $name not found") }
     }
 
-    fun Category.updateName(newName: String) {
+    private fun Category.updateName(newName: String) {
         val oldName = productCategoryNameEnglish
 
         if (oldName != newName) {
             productCategoryNameEnglish = newName
-            auditService.audit(DbEntity.CATEGORY, productCategoryName, "product_category_name", oldName, newName)
+            auditService.audit(DbEntity.CATEGORY, productCategoryName, "product_category_name_english", oldName, newName)
         }
     }
 

@@ -10,7 +10,7 @@ class OrderItemDto(
     val order: OrderDto,
     val freightValue: Double,
     val price: BigDecimal,
-    val productId: String ,
+    val productId: String,
     val sellerId: String,
     val shippingLimitDate: LocalDateTime // todo kotlinx datetime
 )

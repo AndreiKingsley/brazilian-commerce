@@ -1,7 +1,9 @@
 package com.andreikingsley.service
 
 import com.andreikingsley.domain.Product
+import com.andreikingsley.domain.dto.CategoryDto
 import com.andreikingsley.domain.dto.ProductDto
+import com.andreikingsley.domain.dto.toCategoryDto
 import com.andreikingsley.domain.dto.toProductDto
 import com.andreikingsley.repository.ProductRepository
 import jakarta.persistence.EntityManager
@@ -24,7 +26,19 @@ class ProductService(private val repository: ProductRepository) {
     fun getReferenceById(id: String) = repository.getReferenceById(id)
 
     @Transactional(readOnly = true)
+    fun getDtoByIds(ids: Iterable<String>): List<ProductDto> {
+        return ids.toSet()
+            .chunked(ID_CHUNK_SIZE)
+            .flatMap { chunk -> repository.findAllById(chunk) }
+            .map { it.toProductDto() }
+    }
+
+    @Transactional(readOnly = true)
     fun getPage(pageable: Pageable): Page<ProductDto> {
         return repository.findAll(pageable).map { it.toProductDto() }
+    }
+
+    private companion object {
+        const val ID_CHUNK_SIZE = 1000
     }
 }

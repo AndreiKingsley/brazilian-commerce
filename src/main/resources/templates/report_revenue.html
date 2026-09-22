@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Revenue report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 24px;
+            color: #222;
+        }
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 24px;
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 12px;
+        }
+        h2 {
+            font-size: 15px;
+            font-weight: normal;
+            color: #666;
+            margin: 28px 0 8px;
+        }
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .stat {
+            flex: 1 1 200px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            background: #fafafa;
+            padding: 12px 16px;
+        }
+        .stat .label {
+            font-size: 12px;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .stat .value {
+            font-size: 22px;
+            font-family: monospace;
+            margin-top: 6px;
+            white-space: nowrap;
+        }
+        .charts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .charts > figure {
+            flex: 1 1 420px;
+            min-width: 0;
+            margin: 0;
+        }
+        .charts figcaption {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        .chart {
+            display: block;
+            width: 100%;
+            height: 440px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            background: #fff;
+        }
+        .tops {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+        .tops > section {
+            flex: 1 1 380px;
+            min-width: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        thead th {
+            color: #666;
+            font-weight: normal;
+            background: #fafafa;
+        }
+        tbody tr:hover {
+            background: #fbfbfb;
+        }
+        .col-month {
+            width: 140px;
+            white-space: nowrap;
+        }
+        .col-rank {
+            width: 32px;
+            color: #999;
+            text-align: right;
+        }
+        .num {
+            text-align: right;
+            font-family: monospace;
+            white-space: nowrap;
+        }
+        .col-share {
+            width: 34%;
+        }
+        .bar {
+            background: #eef4ff;
+            border: 1px solid #d0dcee;
+            border-radius: 3px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .bar > span {
+            display: block;
+            height: 100%;
+            background: #0b5aa2;
+        }
+        .mono {
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .muted {
+            color: #999;
+        }
+        tfoot td {
+            font-weight: bold;
+            border-top: 2px solid #eee;
+        }
+    </style>
+    <th:block th:replace="~{fragments/nav :: styles}"></th:block>
+</head>
+<body>
+<div class="card" th:with="months=${report.monthlyRevenueInfo},
+                           totalRevenue=${#lists.isEmpty(months)} ? null : ${months[#lists.size(months) - 1].cumulativeRevenue}">
+    <div th:replace="~{fragments/nav :: bar(null)}"></div>
+    <h1>Revenue report</h1>
+
+    <div class="stats">
+        <div class="stat">
+            <div class="label">Total revenue</div>
+            <div class="value"
+                 th:text="${#lists.isEmpty(months)} ? '—' : ${#numbers.formatDecimal(totalRevenue, 1, 'COMMA', 2, 'POINT')}">—
+            </div>
+        </div>
+        <div class="stat">
+            <div class="label">Average bill</div>
+            <div class="value" th:text="${#numbers.formatDecimal(report.averageBill, 1, 'COMMA', 2, 'POINT')}">—</div>
+        </div>
+        <div class="stat">
+            <div class="label">Months covered</div>
+            <div class="value" th:text="${#lists.size(months)}">—</div>
+        </div>
+        <div class="stat">
+            <div class="label">Period</div>
+            <div class="value" style="font-size: 16px"
+                 th:text="${#lists.isEmpty(months)} ? '—' : ${months[0].month} + ' — ' + ${months[#lists.size(months) - 1].month}">—
+            </div>
+        </div>
+    </div>
+
+    <h2>Charts</h2>
+    <!-- Each plot is a whole HTML document with its own scripts, so it lives in an iframe.
+         srcdoc keeps both in this response: no extra requests, getReport() runs once per page view. -->
+    <div class="charts">
+        <figure>
+            <figcaption>Revenue per month</figcaption>
+            <iframe class="chart"
+                    title="Revenue per month"
+                    th:attr="srcdoc=${report.plotRevenueHtml}"></iframe>
+        </figure>
+        <figure>
+            <figcaption>Cumulative revenue</figcaption>
+            <iframe class="chart"
+                    title="Cumulative revenue"
+                    th:attr="srcdoc=${report.plotRevenueCumulativeHtml}"></iframe>
+        </figure>
+    </div>
+
+    <h2>Revenue by month</h2>
+    <table>
+        <thead>
+        <tr>
+            <th class="col-month">Month</th>
+            <th class="num">Revenue</th>
+            <th class="num">Cumulative revenue</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row : ${months}">
+            <td class="col-month" th:text="${row.month}">-</td>
+            <td class="num" th:text="${#numbers.formatDecimal(row.revenue, 1, 'COMMA', 2, 'POINT')}">-</td>
+            <td class="num" th:text="${#numbers.formatDecimal(row.cumulativeRevenue, 1, 'COMMA', 2, 'POINT')}">-</td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(months)}">
+            <td colspan="3" class="muted" style="text-align: center;">No revenue data.</td>
+        </tr>
+        </tbody>
+        <tfoot th:unless="${#lists.isEmpty(months)}">
+        <tr>
+            <td>Total</td>
+            <td class="num" th:text="${#numbers.formatDecimal(totalRevenue, 1, 'COMMA', 2, 'POINT')}">-</td>
+            <td></td>
+        </tr>
+        </tfoot>
+    </table>
+
+    <div class="tops">
+        <section>
+            <h2>Top categories</h2>
+            <table th:with="best=${#lists.isEmpty(report.topCategories)} ? null : ${report.topCategories[0].revenue}">
+                <thead>
+                <tr>
+                    <th class="col-rank">#</th>
+                    <th>Category</th>
+                    <th class="num">Revenue</th>
+                    <th class="col-share">&nbsp;</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row, it : ${report.topCategories}"
+                    th:with="share=${best.signum() == 0} ? 0.0 : ${row.revenue.doubleValue() * 100 / best.doubleValue()}">
+                    <td class="col-rank" th:text="${it.count}">-</td>
+                    <td th:text="${row.categoryName} ?: 'unknown'">-</td>
+                    <td class="num" th:text="${#numbers.formatDecimal(row.revenue, 1, 'COMMA', 2, 'POINT')}">-</td>
+                    <td class="col-share">
+                        <div class="bar">
+                            <span th:style="'width:' + ${#numbers.formatDecimal(share, 1, 'POINT', 2, 'POINT')} + '%'"></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(report.topCategories)}">
+                    <td colspan="4" class="muted" style="text-align: center;">No categories.</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Top sellers</h2>
+            <table th:with="best=${#lists.isEmpty(report.topSellers)} ? null : ${report.topSellers[0].revenue}">
+                <thead>
+                <tr>
+                    <th class="col-rank">#</th>
+                    <th>Seller</th>
+                    <th class="num">Revenue</th>
+                    <th class="col-share">&nbsp;</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row, it : ${report.topSellers}"
+                    th:with="share=${best.signum() == 0} ? 0.0 : ${row.revenue.doubleValue() * 100 / best.doubleValue()}">
+                    <td class="col-rank" th:text="${it.count}">-</td>
+                    <td class="mono" th:text="${row.sellerId}">-</td>
+                    <td class="num" th:text="${#numbers.formatDecimal(row.revenue, 1, 'COMMA', 2, 'POINT')}">-</td>
+                    <td class="col-share">
+                        <div class="bar">
+                            <span th:style="'width:' + ${#numbers.formatDecimal(share, 1, 'POINT', 2, 'POINT')} + '%'"></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(report.topSellers)}">
+                    <td colspan="4" class="muted" style="text-align: center;">No sellers.</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+</div>
+</body>
+</html>

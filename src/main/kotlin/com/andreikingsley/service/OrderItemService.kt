@@ -23,7 +23,13 @@ class OrderItemService(private val repository: OrderItemRepository) {
 
     fun getReferenceById(id: String) = repository.getReferenceById(id)
 
+    @Transactional(readOnly = true)
     fun getOrderItemsDto(orderId: String): List<OrderItemDto> {
         return repository.getAllByOrderOrderId(orderId).map { it.toOrderItemDto() }
+    }
+
+    @Transactional(readOnly = true)
+    fun getAllOrderItemsDto(): List<OrderItemDto> {
+        return repository.findAll().map { it.toOrderItemDto() }
     }
 }
