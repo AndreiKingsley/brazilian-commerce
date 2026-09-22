@@ -8,13 +8,26 @@ import java.time.YearMonth
  */
 data class RevenueReport(
     val monthlyRevenueInfo: List<MonthlyRevenueInfo>,
-    val plotRevenueHtml: String,
-    val plotRevenueCumulativeHtml: String,
+    val plotRevenueHtml: String?,
+    val plotRevenueCumulativeHtml: String?,
     val averageBill: BigDecimal,
-    val topCategories: List<CategoriesRevenueInfo>,
+    val topCategories: List<CategoryRevenueInfo>,
     val topSellers: List<SellerRevenueInfo>,
 ) {
-    data class MonthlyRevenueInfo(val month: YearMonth, val revenue: BigDecimal, val cumulativeRevenue: BigDecimal)
-    data class CategoriesRevenueInfo(val categoryName: String, val revenue: BigDecimal)
+    data class MonthlyRevenueInfo(val month: YearMonth, val revenue: BigDecimal, val cumulativeRevenue: BigDecimal) {
+        // Used for SQL query
+        @Suppress("unused")
+        constructor(
+            year: Int,
+            month: Int,
+            revenue: BigDecimal,
+            cumulativeRevenue: BigDecimal,
+        ) : this(
+            month = YearMonth.of(year, month),
+            revenue = revenue,
+            cumulativeRevenue = cumulativeRevenue,
+        )
+    }
+    data class CategoryRevenueInfo(val categoryName: String, val revenue: BigDecimal)
     data class SellerRevenueInfo(val sellerId: String, val revenue: BigDecimal)
 }

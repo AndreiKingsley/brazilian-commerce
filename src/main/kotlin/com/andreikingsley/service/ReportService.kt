@@ -17,12 +17,14 @@ import org.jetbrains.kotlinx.kandy.letsplot.scales.guide.LegendType
 import org.jetbrains.kotlinx.kandy.letsplot.style.Style
 import org.jetbrains.kotlinx.kandy.util.color.Color
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.YearMonth
 import java.time.temporal.ChronoUnit
 
 @Service
+@Transactional(readOnly = true)
 class ReportService(
     private val orderService: OrderService,
     private val orderItemService: OrderItemService,
